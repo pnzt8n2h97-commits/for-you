@@ -1,0 +1,2188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Digital Releases for Stremio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;800&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0b0716; --card:#150d27; --field:#0d0720; --ink:#12081f; --text:#f6f2ff; --muted:#bdb2de; --line:rgba(255,255,255,.16);
+    --pink:#ff3d81; --orange:#ff7a3d; --sun:#ffd23f; --lime:#b6ff3b; --cyan:#22d3ee; --violet:#8b5cff;
+    --accent:var(--violet); --bad:#ff9a9a;
+    --grad:linear-gradient(120deg,var(--pink),var(--orange) 50%,var(--sun));
+    --grad2:linear-gradient(120deg,var(--violet),var(--cyan));
+    --display:"Unbounded","Arial Black",system-ui,sans-serif;
+    color-scheme: dark;
+  }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  [hidden] { display:none !important; }
+  html { overflow-x:clip; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:"Sora",system-ui,-apple-system,"Segoe UI",sans-serif; line-height:1.55; -webkit-font-smoothing:antialiased; overflow-x:clip; }
+  a { color:var(--cyan); }
+
+  /* Colour mesh behind everything */
+  .aurora { position:fixed; inset:-15% -10% auto -10%; height:95vh; z-index:-1; pointer-events:none; filter:blur(36px); opacity:.9;
+    background:
+      radial-gradient(38% 46% at 14% 18%, rgba(255,61,129,.60), transparent 70%),
+      radial-gradient(34% 44% at 84% 8%, rgba(139,92,255,.65), transparent 70%),
+      radial-gradient(38% 46% at 62% 72%, rgba(34,211,238,.42), transparent 70%),
+      radial-gradient(30% 40% at 22% 88%, rgba(255,210,63,.34), transparent 70%); }
+  @media (prefers-reduced-motion:no-preference) { .aurora { animation:float 16s ease-in-out infinite alternate; } @keyframes float { to { transform:translate3d(3%,4%,0) scale(1.1); } } }
+
+  .wrap { max-width:1120px; margin:0 auto; padding:0 20px; }
+  header { padding:52px 0 30px; }
+  h1 { font-family:var(--display); font-weight:800; font-size:clamp(1.9rem,6.4vw,4rem); line-height:1.05; letter-spacing:-.025em; margin:0 0 20px; max-width:18ch;
+    color:#fff; background:linear-gradient(100deg,#fff 5%,var(--sun) 38%,var(--pink) 72%,var(--violet)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+  .lede { color:var(--muted); font-size:1.1rem; max-width:48ch; margin:0; }
+
+  form { max-width:660px; display:grid; grid-template-columns:minmax(0,1fr); gap:22px; padding:28px; border-radius:30px; border:2px solid transparent;
+    background:linear-gradient(var(--card),var(--card)) padding-box, linear-gradient(135deg,var(--pink),var(--violet),var(--cyan)) border-box;
+    box-shadow:0 40px 90px -40px rgba(139,92,255,.75), 0 10px 40px -20px rgba(255,61,129,.6); }
+  form > *, .panel > * { min-width:0; }
+  label { display:block; font-weight:600; margin-bottom:8px; }
+  .hint { color:var(--muted); font-size:.88rem; margin:8px 0 0; }
+  textarea { resize:vertical; min-height:84px; line-height:1.45; }
+  input, select, textarea { width:100%; font:inherit; color:var(--text); background:var(--field); border:1.5px solid var(--line); border-radius:15px; padding:13px 15px; }
+  input::placeholder, textarea::placeholder { color:#80749f; }
+  select option { background:var(--card); color:var(--text); }
+  input:focus-visible, select:focus-visible, textarea:focus-visible { border-color:var(--cyan); outline:3px solid rgba(34,211,238,.45); outline-offset:1px; }
+  .btn:focus-visible, .poster:focus-visible, .chip:focus-visible, .tab:focus-visible { outline:3px solid #fff; outline-offset:3px; }
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  @media (max-width:520px) { .row { grid-template-columns:1fr; } form { padding:20px; border-radius:24px; } }
+  .err { color:var(--bad); font-size:.88rem; margin:6px 0 0; min-height:1.3em; }
+
+  .tabs { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; padding:5px; border-radius:20px; background:rgba(255,255,255,.07); border:1px solid var(--line); }
+  .tab { min-width:0; overflow-wrap:normal; word-break:normal; hyphens:none; font-family:var(--display); font-weight:500; font-size:.85rem; padding:13px 12px; border-radius:15px; border:0; background:transparent; color:var(--muted); cursor:pointer; transition:background .15s,color .15s; }
+  .tab:hover { color:var(--text); }
+  .tab[aria-selected="true"] { background:var(--grad); color:var(--ink); font-weight:800; box-shadow:0 8px 24px -8px rgba(255,61,129,.8); }
+  /* Phones: two columns in the narrower body font, so every label fits whole (down to 320px screens). */
+  @media (max-width:520px) { .tabs { grid-template-columns:repeat(2,minmax(0,1fr)); } .tab { font-family:"Sora",system-ui,sans-serif; font-size:.82rem; padding:12px 6px; } }
+
+  .chips { display:flex; flex-wrap:wrap; gap:9px; }
+  .chip { --c:var(--pink); font:inherit; font-size:.9rem; padding:9px 15px; border-radius:999px; cursor:pointer; color:var(--text);
+    border:1.5px solid rgba(255,255,255,.28); background:rgba(255,255,255,.05);
+    border:1.5px solid color-mix(in srgb,var(--c) 65%,transparent); background:color-mix(in srgb,var(--c) 13%,transparent); transition:transform .12s,background .12s; }
+  .chip:nth-child(6n+2) { --c:var(--orange); } .chip:nth-child(6n+3) { --c:var(--sun); } .chip:nth-child(6n+4) { --c:var(--lime); }
+  .chip:nth-child(6n+5) { --c:var(--cyan); } .chip:nth-child(6n) { --c:var(--violet); }
+  .chip:hover { transform:translateY(-2px); }
+  .chip[aria-pressed="true"], .chip[aria-pressed="true"]:hover { background:var(--c); border-color:var(--c); color:var(--ink); font-weight:700; box-shadow:0 8px 22px -6px var(--c); }
+
+  .sw { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:14px 0; border-top:1px solid var(--line); cursor:pointer; }
+  .sw b { display:block; font-weight:600; }
+  .sw small { color:var(--muted); font-size:.85rem; }
+  .sw input { appearance:none; -webkit-appearance:none; flex:0 0 auto; width:52px; height:30px; padding:0; border:0; border-radius:15px; background:rgba(255,255,255,.2); position:relative; cursor:pointer; margin:0; transition:background .15s; }
+  .sw input::after { content:""; position:absolute; top:3px; left:3px; width:24px; height:24px; border-radius:50%; background:#fff; transition:transform .15s; }
+  .sw input:checked { background:var(--grad2); }
+  .sw input:checked::after { transform:translateX(22px); }
+
+  .actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:4px; }
+  .btn { font:inherit; font-weight:700; padding:15px 22px; border-radius:17px; border:1.5px solid transparent; cursor:pointer; text-decoration:none; display:inline-block; transition:transform .12s,box-shadow .12s,background .12s; }
+  .btn:hover { transform:translateY(-2px); }
+  .btn.primary { background:var(--grad); color:var(--ink); font-family:var(--display); font-weight:800; font-size:.95rem; box-shadow:0 14px 34px -10px rgba(255,61,129,.85); }
+  .btn.ghost { background:rgba(255,255,255,.05); color:var(--text); border-color:rgba(255,255,255,.28); }
+  .btn.ghost:hover { background:rgba(255,255,255,.12); border-color:var(--cyan); }
+  .btn[aria-disabled="true"], .btn:disabled { opacity:.4; cursor:not-allowed; transform:none; box-shadow:none; }
+  .order { list-style:none; margin:0; padding:0; display:grid; gap:8px; }
+  .order li { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px 10px; padding:10px 12px; border-radius:15px; background:rgba(255,255,255,.06); border:1px solid var(--line); }
+  .order label { display:flex; align-items:center; gap:10px; margin:0; font-weight:600; cursor:pointer; flex:1 1 180px; min-width:0; }
+  .order label span { overflow-wrap:anywhere; }
+  .order small { color:var(--muted); font-weight:400; margin-left:6px; }
+  .order .mv { display:flex; gap:6px; margin-left:auto; }
+  .order .mv button { font:inherit; padding:6px 11px; border-radius:11px; border:1px solid var(--line); background:transparent; color:var(--text); cursor:pointer; }
+  .order .mv button:disabled { opacity:.35; cursor:default; }
+  .order .grip { cursor:grab; touch-action:none; user-select:none; color:var(--muted); font-size:1.15rem; letter-spacing:-2px; padding:0 4px; }
+  .order li.dragging { opacity:.5; }
+  .order li.drop { outline:2px dashed var(--cyan); outline-offset:3px; }
+  .order input[type=checkbox] { width:20px; height:20px; accent-color:var(--pink); flex:0 0 auto; }
+  .pin { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:1.7rem; font-weight:800; letter-spacing:.14em; color:var(--sun); margin:6px 0 10px; }
+  .sk-ok { margin:0 0 10px; }
+  .sk-ok b { color:var(--lime); }
+  .check { list-style:none; margin:0; padding:0; display:grid; gap:8px; }
+  .check li { display:flex; gap:10px; align-items:flex-start; padding:11px 15px; border-radius:15px; background:rgba(255,255,255,.07); border:1px solid var(--line); font-size:.92rem; }
+  .check b { flex:0 0 auto; }
+  .check .good b { color:var(--lime); }
+  .check .bad b { color:var(--pink); }
+  .url { font-size:.85rem; color:var(--muted); word-break:break-all; overflow-wrap:anywhere; margin:0; }
+  .url code { color:var(--cyan); }
+  .warn { font-size:.85rem; color:var(--muted); border-top:1px solid var(--line); padding-top:16px; margin:0; }
+
+  /* For You swipe deck */
+  .deck { display:grid; justify-items:center; gap:14px; }
+  .deck-top { display:flex; justify-content:space-between; align-items:baseline; gap:10px; width:min(100%,360px); font-size:.88rem; color:var(--muted); }
+  .deck-top b { font-family:var(--display); color:var(--text); font-size:.95rem; }
+  .bar { height:6px; width:min(100%,360px); border-radius:3px; background:rgba(255,255,255,.1); overflow:hidden; }
+  .bar i { display:block; height:100%; background:var(--grad); transition:width .2s; }
+  .stack { position:relative; width:min(100%,260px); aspect-ratio:2/3; outline:none; }
+  .stack:focus-visible { outline:3px solid #fff; outline-offset:6px; border-radius:24px; }
+  .card { position:absolute; inset:0; border-radius:22px; overflow:hidden; background:var(--card); border:2px solid var(--violet);
+    box-shadow:0 24px 50px -22px rgba(139,92,255,.9); touch-action:none; user-select:none; -webkit-user-select:none; cursor:grab; transition:transform .22s ease, opacity .22s ease; }
+  .card.behind { transform:scale(.93) translateY(14px); opacity:.55; pointer-events:none; border-color:var(--line); }
+  .card.dragging { transition:none; cursor:grabbing; }
+  .card img { width:100%; height:100%; object-fit:cover; display:block; pointer-events:none; }
+  .card .info { position:absolute; inset:auto 0 0 0; padding:56px 14px 14px; background:linear-gradient(transparent,rgba(11,7,22,.97) 42%); }
+  .card .info b { display:block; font-family:var(--display); font-weight:800; font-size:1rem; line-height:1.2; overflow-wrap:anywhere; }
+  .card .info small { color:var(--muted); font-size:.8rem; }
+  .card .info p { margin:6px 0 0; font-size:.78rem; line-height:1.4; color:var(--muted); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .stamp { position:absolute; top:18px; padding:3px 11px; border:3px solid currentColor; border-radius:10px; font-family:var(--display); font-weight:800; font-size:1.1rem; opacity:0; pointer-events:none; background:rgba(11,7,22,.55); }
+  .stamp.yes { left:14px; color:var(--lime); transform:rotate(-12deg); }
+  .stamp.no { right:14px; color:var(--pink); transform:rotate(12deg); }
+  .stamp.want { left:50%; top:34%; color:var(--sun); transform:translateX(-50%); white-space:nowrap; }
+  .swipe-btns { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; width:min(100%,360px); }
+  .swipe-btns button { --c:rgba(255,255,255,.35); font:inherit; font-size:.74rem; font-weight:600; line-height:1.2; color:var(--text); background:rgba(255,255,255,.05);
+    border:1.5px solid var(--c); border-radius:16px; padding:10px 4px 9px; cursor:pointer; display:grid; justify-items:center; align-content:start; gap:4px; transition:transform .12s, background .12s; }
+  .swipe-btns button:hover { transform:translateY(-2px); background:color-mix(in srgb,var(--c) 16%,transparent); }
+  .swipe-btns button:focus-visible { outline:3px solid #fff; outline-offset:2px; }
+  .swipe-btns button span { font-size:1.35rem; line-height:1; color:var(--c); }
+  .swipe-btns .no { --c:var(--pink); } .swipe-btns .want { --c:var(--sun); } .swipe-btns .yes { --c:var(--lime); }
+  .deck-links { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; }
+  .linkbtn { font:inherit; font-size:.85rem; color:var(--cyan); background:none; border:0; padding:4px 6px; cursor:pointer; text-decoration:underline; text-underline-offset:3px; }
+  .linkbtn:disabled { opacity:.4; cursor:default; }
+  .ctx-list { list-style:none; margin:0 0 10px; padding:0; display:grid; gap:8px; }
+  .ctx-list:empty { display:none; }
+  .ctx-list li { display:flex; flex-wrap:wrap; align-items:center; gap:8px 10px; padding:10px 12px; border-radius:14px; background:rgba(255,255,255,.06); border:1px solid var(--line); }
+  .ctx-list li span { flex:1 1 160px; min-width:0; overflow-wrap:anywhere; font-weight:600; }
+  .ctx-list li small { color:var(--muted); font-weight:400; margin-left:6px; }
+  .ctx-list li .mv { display:flex; flex-wrap:wrap; gap:6px; margin-left:auto; }
+  .ctx-list li button { font:inherit; font-size:.85rem; padding:6px 11px; min-height:36px; border-radius:11px; border:1px solid var(--line); background:transparent; color:var(--text); cursor:pointer; }
+  .ctx-list li button:focus-visible { outline:3px solid currentColor; outline-offset:2px; }
+  .ctx-add { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+  .ctx-add input { flex:1 1 220px; min-width:0; }
+  .ctx-add .btn { padding:12px 18px; }
+  .ctx-type { display:flex; gap:6px; }
+  .ctx-try { margin-top:14px; padding-top:14px; border-top:1px solid var(--line); }
+  body.fy-app .ctx-list li { background:#fff; }
+
+  /* "Put it at the top of Stremio": a sign-in sheet that talks to Stremio straight from the browser */
+  .st-sheet { position:fixed; inset:0; z-index:80; display:grid; place-items:end center; overflow-y:auto; background:rgba(5,4,12,.66);
+    padding:16px max(16px, env(safe-area-inset-right, 0px)) calc(16px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+  @media (min-width:600px) { .st-sheet { place-items:center; } }
+  .st-card { width:min(100%, 460px); display:grid; gap:10px; padding:24px 20px 20px; border-radius:24px; background:var(--card); color:var(--text);
+    border:1px solid var(--line); box-shadow:0 30px 80px -20px rgba(0,0,0,.6); }
+  .st-card h2 { margin:0; font-family:var(--display); font-weight:800; font-size:1.2rem; line-height:1.25; }
+  .st-card p { margin:0; }
+  .st-card label { margin:6px 0 0; }
+  .st-card .btn { width:100%; text-align:center; }
+  .st-card details { font-size:.9rem; color:var(--muted); }
+  .st-card details summary { cursor:pointer; padding:4px 0; }
+  .st-card details p { margin:6px 0; }
+  .st-card code { font-size:.8rem; overflow-wrap:anywhere; color:var(--text); }
+  .st-ok { color:var(--lime); font-weight:700; }
+  body.fy-app .st-card { background:#fff; border:0; }
+  body.fy-app .st-ok { color:var(--ok); }
+  .sw-sum { margin:0 0 12px; font-size:.92rem; }
+  .sw-sum b { color:var(--lime); }
+
+  /* ===== The stand-alone For You app (/foryou): a Tinder-style deck first, then setup. =====
+     Same deck code as the For You tab; only this skin and the order of screens differ. */
+  /* White, like Tinder's default look. Photo cards keep their dark shade so titles stay readable. */
+  body.fy-app { --bg:#ffffff; --card:#f4f5f7; --field:#ffffff; --text:#21262e; --muted:#5f6773; --line:rgba(0,0,0,.12); --ink:#21262e;
+    --grad:linear-gradient(135deg,#fd267a,#ff6036); --t-nope:#ff4458; --t-like:#12c48b; --t-star:#1a9cf0; --t-rew:#f0a020; --t-skip:#a14df5;
+    --ok:#0c8a5e; --link:#d1205f; color-scheme:light; }
+  body.fy-app a, body.fy-app .url code { color:var(--link); }
+  body.fy-app .err { color:#c4203a; }
+  body.fy-app .btn.ghost { background:#fff; color:var(--text); border-color:rgba(0,0,0,.16); }
+  body.fy-app .btn.ghost:hover { background:#f4f5f7; border-color:rgba(0,0,0,.3); }
+  body.fy-app .btn:focus-visible, body.fy-app .chip:focus-visible, body.fy-app .fy-done:focus-visible, body.fy-app .fy-pill:focus-visible,
+  body.fy-app .fy-back:focus-visible, body.fy-app .t-b:focus-visible .ring, body.fy-app .tinder .t-stack:focus-visible { outline-color:#21262e; }
+  body.fy-app .sw input { background:rgba(0,0,0,.18); }
+  body.fy-app .sw-sum b, body.fy-app .fy-sum b, body.fy-app .sk-ok b, body.fy-app .check .good b { color:var(--ok); }
+  body.fy-app .pin { color:#c2410c; }
+  body.fy-app .check li, body.fy-app .msg { background:#f4f5f7; }
+  body.fy-app .skeleton { background:linear-gradient(110deg,#eceef1 30%,#f7f8fa 50%,#eceef1 70%); background-size:220% 100%; }
+  body.fy-app input::placeholder, body.fy-app textarea::placeholder { color:#8a919c; }
+  body.fy-app .aurora, body.fy-app #reel, body.fy-app #reelTv { display:none !important; }
+  .fy-shell { box-sizing:border-box; width:100%; max-width:520px; margin:0 auto; min-height:100vh; min-height:100dvh; display:flex; flex-direction:column; align-items:center; gap:12px;
+    padding:10px max(12px, env(safe-area-inset-right, 0px)) 18px max(12px, env(safe-area-inset-left, 0px)); }
+  .fy-top { width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px; min-height:48px; }
+  .fy-logo { display:flex; align-items:center; gap:7px; flex:none; white-space:nowrap; }
+  .fy-logo span { font-family:var(--display); font-weight:800; font-size:1.2rem; letter-spacing:-.03em; color:#ff3d6e; background:var(--grad); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+  .fy-kind { min-width:0; overflow:hidden; text-overflow:ellipsis; font-size:.8rem; font-weight:600; color:var(--muted); padding:6px 12px; border-radius:999px; background:#f1f2f4; white-space:nowrap; }
+  .fy-kind:empty { visibility:hidden; }
+  .fy-done { flex:none; font:inherit; font-weight:700; font-size:.9rem; color:#fff; background:var(--grad); border:0; border-radius:999px; padding:9px 18px; min-height:40px; cursor:pointer; }
+  .fy-done:focus-visible, .fy-pill:focus-visible, .fy-back:focus-visible { outline:3px solid #fff; outline-offset:3px; }
+
+  .tinder { width:100%; display:flex; flex-direction:column; align-items:center; gap:16px; }
+  .tinder .t-stack { position:relative; width:auto; height:clamp(340px, calc(100vh - 230px), 700px); height:clamp(340px, calc(100dvh - 230px), 700px); aspect-ratio:2/3; max-width:100%; outline:none; }
+  .tinder .t-stack:focus-visible { outline:3px solid #fff; outline-offset:4px; border-radius:20px; }
+  .tinder .card { border:0; border-radius:18px; background:#1b1b22; color:#fff; box-shadow:0 10px 30px -8px rgba(0,0,0,.28); }
+  .tinder .card.behind { transform:scale(.96); opacity:1; }
+  .t-shade { position:absolute; inset:0; pointer-events:none; background:linear-gradient(180deg, rgba(0,0,0,.4) 0%, rgba(0,0,0,0) 13%, rgba(0,0,0,0) 46%, rgba(0,0,0,.93) 100%); }
+  .t-bars { position:absolute; top:8px; left:8px; right:8px; display:grid; grid-template-columns:repeat(10, minmax(0, 1fr)); gap:4px; pointer-events:none; }
+  .t-bars i { height:4px; border-radius:2px; background:rgba(255,255,255,.3); }
+  .t-bars i.on { background:#fff; }
+  .t-info { position:absolute; left:0; right:0; bottom:0; padding:16px 16px 18px; display:grid; gap:8px; pointer-events:none; }
+  .t-name { display:flex; align-items:baseline; flex-wrap:wrap; gap:4px 10px; text-shadow:0 1px 10px rgba(0,0,0,.6); }
+  .t-name b { font-size:clamp(1.45rem, 6.5vw, 2rem); font-weight:700; line-height:1.1; overflow-wrap:anywhere; }
+  .t-name span { font-size:clamp(1.1rem, 5vw, 1.45rem); font-weight:400; }
+  .t-chips { display:flex; flex-wrap:wrap; gap:6px; }
+  .t-chips span { font-size:.78rem; font-weight:600; padding:5px 11px; border-radius:999px; background:rgba(255,255,255,.18); }
+  .t-info p { margin:0; font-size:.86rem; line-height:1.45; color:rgba(255,255,255,.86); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .tinder .stamp { top:46px; font-family:"Sora",system-ui,sans-serif; font-weight:800; font-size:2rem; letter-spacing:.05em; padding:2px 12px; border-width:5px; border-radius:10px; background:transparent; }
+  .tinder .stamp.yes { left:22px; color:var(--t-like); transform:rotate(-18deg); }
+  .tinder .stamp.no { right:22px; color:var(--t-nope); transform:rotate(18deg); }
+  .tinder .stamp.want { top:auto; bottom:34%; left:50%; color:var(--t-star); font-size:1.55rem; transform:translateX(-50%) rotate(-8deg); }
+  .t-btns { display:flex; justify-content:center; align-items:flex-start; gap:clamp(10px, 3.6vw, 22px); }
+  .t-b { --c:#fff; --s:clamp(42px, 12vw, 52px); display:flex; flex-direction:column; align-items:center; gap:6px; background:none; border:0; padding:0; font:inherit; font-size:.68rem; font-weight:600; color:var(--muted); cursor:pointer; }
+  .t-b.lg { --s:clamp(56px, 16.5vw, 70px); }
+  .t-b .ring { width:var(--s); height:var(--s); border-radius:50%; display:grid; place-items:center; color:var(--c); background:#fff;
+    border:1px solid rgba(0,0,0,.06); box-shadow:0 6px 18px -4px rgba(0,0,0,.18); transition:transform .12s, background .12s; }
+  .t-b .ring svg { width:46%; height:46%; }
+  .t-b:hover .ring { transform:scale(1.08); background:color-mix(in srgb, var(--c) 10%, #fff); }
+  .t-b:active .ring { transform:scale(.92); }
+  .t-b:focus-visible { outline:none; }
+  .t-b:focus-visible .ring { outline:3px solid #fff; outline-offset:3px; }
+  .t-b:disabled { opacity:.35; cursor:default; }
+  .t-b:disabled .ring { transform:none; background:#fff; box-shadow:0 2px 8px -2px rgba(0,0,0,.12); }
+  .t-b.rew { --c:var(--t-rew); } .t-b.nope { --c:var(--t-nope); } .t-b.star { --c:var(--t-star); } .t-b.like { --c:var(--t-like); } .t-b.skip { --c:var(--t-skip); }
+  .t-panel { position:absolute; inset:0; border-radius:18px; background:#f4f5f7; border:1px solid rgba(0,0,0,.06); display:flex; flex-direction:column; justify-content:center; align-items:center; gap:14px; padding:24px; text-align:center; }
+  .t-panel b { font-size:1.3rem; }
+  .t-panel p { margin:0; color:var(--muted); font-size:.92rem; max-width:32ch; }
+  .t-panel input { max-width:320px; }
+  .t-radar { position:relative; width:90px; height:90px; display:grid; place-items:center; }
+  .t-radar .dot { position:relative; z-index:1; width:84px; height:84px; border-radius:50%; background:var(--grad); display:grid; place-items:center; box-shadow:0 0 0 6px rgba(253,38,122,.18); }
+  .t-radar .wave { position:absolute; width:84px; height:84px; border-radius:50%; background:rgba(253,38,122,.35); }
+  @media (prefers-reduced-motion:no-preference) { .t-radar .wave { animation:radar 2.2s ease-out infinite; } .t-radar .wave.two { animation-delay:1.1s; } @keyframes radar { to { transform:scale(3.6); opacity:0; } } }
+
+  .fy-sheet { position:fixed; inset:0; z-index:60; display:grid; place-items:end center; background:rgba(15,17,22,.55);
+    padding:16px max(16px, env(safe-area-inset-right, 0px)) calc(16px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+  @media (min-width:600px) { .fy-sheet { place-items:center; } }
+  .fy-sheet-card { width:min(100%, 440px); display:grid; justify-items:center; gap:14px; text-align:center; padding:28px 22px 22px; border-radius:26px; background:#fff; border:0; box-shadow:0 30px 80px -20px rgba(253,38,122,.5); }
+  .fy-match { font-family:"Pacifico","Brush Script MT",cursive; font-size:clamp(2.2rem, 10vw, 3rem); line-height:1.25; padding:0 8px; color:#ff4f6d;
+    background:linear-gradient(135deg,#fd267a,#ff6036 60%,#ffd23f); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; transform:rotate(-4deg); }
+  .fy-avatars { display:flex; justify-content:center; }
+  .fy-avatars:empty { display:none; }
+  .fy-avatars img { width:64px; height:64px; border-radius:50%; object-fit:cover; border:3px solid #fff; margin-left:-14px; box-shadow:0 6px 16px rgba(0,0,0,.25); background:#e6e8eb; }
+  .fy-avatars img:first-child { margin-left:0; }
+  .fy-sum { margin:0; color:var(--muted); font-size:.92rem; line-height:1.6; }
+  .fy-sum b { color:var(--t-like); }
+  .fy-q { margin:4px 0 0; font-weight:700; font-size:1.1rem; }
+  .fy-pill { width:100%; font:inherit; font-weight:700; font-size:1rem; border-radius:999px; padding:14px 20px; min-height:52px; cursor:pointer; }
+  .fy-pill.grad { background:var(--grad); color:#fff; border:0; }
+  .fy-pill.ghost { background:#fff; color:var(--text); border:2px solid rgba(0,0,0,.18); }
+  body.fy-app #wantMsg { position:fixed; z-index:70; top:calc(12px + env(safe-area-inset-top, 0px)); left:50%; transform:translateX(-50%); width:min(calc(100vw - 32px), 420px);
+    margin:0; padding:12px 16px; border-radius:14px; background:#21262e; border:0; color:#fff; font-size:.88rem; text-align:center; box-shadow:0 18px 40px -16px rgba(0,0,0,.9); }
+
+  /* Setup screen, in the same app style */
+  body.fy-app .wrap { max-width:640px; }
+  body.fy-app header { padding:14px 0 18px; }
+  body.fy-app h1 { font-size:clamp(1.7rem, 7vw, 2.5rem); background:var(--grad); -webkit-background-clip:text; background-clip:text; }
+  body.fy-app #form { padding:0; border:0; background:none; box-shadow:none; border-radius:0; gap:12px; }
+  body.fy-app #form > div:not(.actions):not(.tabs) { background:var(--card); border-radius:18px; padding:16px; border:1px solid rgba(0,0,0,.04); }
+  body.fy-app #form > div > label:first-child, body.fy-app #form .panel > label:first-child { font-size:.74rem; text-transform:uppercase; letter-spacing:.09em; color:var(--muted); }
+  body.fy-app #form > .actions { padding-top:6px; }
+  body.fy-app #install { flex:1 1 100%; text-align:center; border-radius:999px; background:var(--grad); color:#fff; font-family:"Sora",system-ui,sans-serif; font-weight:700; font-size:1.05rem; }
+  body.fy-app .btn.ghost { border-radius:999px; }
+  .fy-back { font:inherit; font-weight:600; color:var(--text); background:#f1f2f4; border:0; border-radius:999px; padding:10px 16px; min-height:44px; cursor:pointer; margin-top:16px; }
+
+  .wall-head { display:flex; justify-content:space-between; align-items:center; margin:48px 0 16px; }
+  .wall-head h2 { font-family:var(--display); font-size:1.25rem; font-weight:800; margin:0; }
+  .wall-head span { color:var(--ink); background:var(--grad2); font-size:.8rem; font-weight:700; padding:3px 12px; border-radius:999px; }
+  .wall-head span:empty { display:none; }
+  .wall { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:16px; padding-bottom:64px; }
+  .poster { --c:var(--pink); display:block; color:inherit; text-decoration:none; border-radius:18px; overflow:hidden; background:var(--card); border:2px solid var(--c); aspect-ratio:2/3; position:relative; transition:transform .18s,box-shadow .18s; }
+  .poster:nth-child(5n+2) { --c:var(--orange); } .poster:nth-child(5n+3) { --c:var(--sun); } .poster:nth-child(5n+4) { --c:var(--cyan); } .poster:nth-child(5n) { --c:var(--violet); }
+  .poster:hover, .poster:focus-visible { transform:translateY(-6px) rotate(-1.2deg); box-shadow:0 22px 44px -12px var(--c); }
+  .poster img { width:100%; height:100%; object-fit:cover; display:block; }
+  .poster .cap { position:absolute; inset:auto 0 0 0; padding:34px 10px 10px; background:linear-gradient(transparent,rgba(11,7,22,.95)); font-size:.85rem; font-weight:600; line-height:1.25; opacity:0; transition:opacity .15s; }
+  .poster:hover .cap, .poster:focus-visible .cap { opacity:1; }
+  @media (hover:none) { .poster .cap { opacity:1; } }
+  .noimg { display:grid; place-items:center; height:100%; padding:12px; text-align:center; color:var(--muted); font-size:.9rem; }
+  .msg { grid-column:1/-1; color:var(--muted); padding:22px; background:rgba(255,255,255,.06); border:1px solid var(--line); border-left:4px solid var(--pink); border-radius:16px; }
+  .skeleton { background:linear-gradient(110deg,rgba(255,255,255,.06) 30%,rgba(255,255,255,.16) 50%,rgba(255,255,255,.06) 70%); background-size:220% 100%; border-radius:18px; aspect-ratio:2/3; }
+  @media (prefers-reduced-motion:no-preference) { .skeleton { animation:shimmer 1.3s linear infinite; } @keyframes shimmer { to { background-position:-220% 0; } } }
+
+  .reel { --gap:14px; display:none; overflow:hidden; height:clamp(160px,28vw,250px); padding-top:18px; box-sizing:content-box;
+    -webkit-mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent); mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent); }
+  .reel.on { display:block; }
+  .reel .track { display:flex; align-items:center; gap:var(--gap); padding-right:var(--gap); width:max-content; height:100%; }
+  .reel img { --c:var(--pink); height:88%; aspect-ratio:2/3; object-fit:cover; border-radius:16px; background:var(--card); border:2px solid var(--c); box-shadow:0 14px 34px -14px var(--c); user-select:none; pointer-events:none; }
+  .reel img:nth-child(5n+2) { --c:var(--orange); transform:rotate(2deg); } .reel img:nth-child(5n+3) { --c:var(--sun); } .reel img:nth-child(5n+4) { --c:var(--cyan); transform:rotate(-2deg); } .reel img:nth-child(5n) { --c:var(--violet); }
+  @media (prefers-reduced-motion:no-preference) { .reel .track { animation:drift 90s linear infinite; } @keyframes drift { to { transform:translateX(-50%); } } }
+  .reel-tv { padding-top:0; padding-bottom:18px; margin-bottom:8px; }
+  .reel-tv .track { animation-direction:reverse; }
+
+  footer { border-top:1px solid var(--line); padding:24px 0 40px; color:var(--muted); font-size:.85rem; }
+</style>
+</head>
+<body>
+<div class="aurora" aria-hidden="true"></div>
+<!-- The stand-alone For You app (/foryou) only: the swipe screen and the "done?" sheet. Hidden on the main page. -->
+<div class="fy-shell" id="fyShell" hidden>
+  <div class="fy-top">
+    <div class="fy-logo">
+      <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="fyG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fd267a"/><stop offset="1" stop-color="#ff6036"/></linearGradient></defs><path fill="url(#fyG)" d="M12 21.2s-8.8-5.3-8.8-11.7A5 5 0 0 1 12 6.6a5 5 0 0 1 8.8 2.9c0 6.4-8.8 11.7-8.8 11.7z"/><path fill="#fff" d="M10.2 9.6v5.6l4.6-2.8z"/></svg>
+      <span>for you</span>
+    </div>
+    <span class="fy-kind" id="fyKind" aria-live="polite"></span>
+    <button class="fy-done" id="fyDone" type="button">Done</button>
+  </div>
+</div>
+<div class="fy-sheet" id="fySheet" role="dialog" aria-modal="true" aria-labelledby="fySheetTitle" hidden>
+  <div class="fy-sheet-card">
+    <div class="fy-match" id="fySheetTitle">Nice taste!</div>
+    <div class="fy-avatars" id="fyAvatars"></div>
+    <p class="fy-sum" id="fySheetSum"></p>
+    <p class="fy-q" id="fySheetQ">Are you done with your selections?</p>
+    <button class="fy-pill grad" id="fyYes" type="button">Yes, I'm done</button>
+    <button class="fy-pill ghost" id="fyKeep" type="button">Keep swiping</button>
+  </div>
+</div>
+<div class="reel" id="reel" aria-hidden="true"></div>
+<div class="wrap">
+  <header>
+    <h1>Movies you can rent or buy right now.</h1>
+    <p class="lede">A Stremio catalog that hides anything still stuck in theaters, plus new shows you can stream now. Add your keys, pick a region, and install.</p>
+  </header>
+
+  <form id="form" autocomplete="off" novalidate>
+    <div class="tabs" role="tablist" aria-label="Add-on type">
+      <button type="button" role="tab" class="tab" data-mode="releases" aria-selected="true">Movies and Shows</button>
+      <button type="button" role="tab" class="tab" data-mode="trash" aria-selected="false">Trash TV</button>
+      <button type="button" role="tab" class="tab" data-mode="turkish" aria-selected="false">Turkish TV</button>
+      <button type="button" role="tab" class="tab" data-mode="docs" aria-selected="false">Documentaries</button>
+      <button type="button" role="tab" class="tab" data-mode="all" aria-selected="false">Everything</button>
+      <button type="button" role="tab" class="tab" data-mode="foryou" aria-selected="false">For You</button>
+    </div>
+    <div>
+      <label for="tmdb">TMDB API key (required)</label>
+      <input id="tmdb" name="tmdb" type="text" spellcheck="false" autocapitalize="off" placeholder="Paste your v3 key or v4 read token">
+      <p class="hint">Free at <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener">themoviedb.org/settings/api</a>.</p>
+      <p class="err" id="tmdbErr" role="alert"></p>
+    </div>
+    <div>
+      <label for="provider">Poster style</label>
+      <select id="provider">
+        <option value="tmdb">Plain posters (TMDB)</option>
+        <option value="rpdb">Rating posters: RPDB</option>
+        <option value="topposters">Rating posters: Top Posters</option>
+        <option value="custom">Rating posters: ERDB, XRDB, Posters+, Pictorium or other (custom URL)</option>
+      </select>
+    </div>
+    <div id="rpdbBox" hidden>
+      <label for="rpdb">RPDB key</label>
+      <input id="rpdb" name="rpdb" type="text" spellcheck="false" autocapitalize="off" placeholder="Paste your RPDB key">
+      <p class="hint">Prefilled with the free key <code>t0-free-rpdb</code>, which only covers popular titles (others show plain posters). For full coverage, replace it with your own key from <a href="https://ratingposterdb.com" target="_blank" rel="noopener">ratingposterdb.com</a>.</p>
+      <p class="err" id="rpdbErr" role="alert"></p>
+    </div>
+    <div id="topBox" hidden>
+      <label for="top">Top Posters API key</label>
+      <input id="top" name="top" type="text" spellcheck="false" autocapitalize="off" placeholder="Paste your Top Posters API key">
+      <p class="hint">Get a free key by registering at <a href="https://top-posters.com/user/register" target="_blank" rel="noopener">top-posters.com</a> (the free plan includes 10,000 requests a month, and there's no shared demo key). Badge style and language are set in your Top Posters dashboard. If it has no rated poster for a title, the plain poster is shown.</p>
+      <p class="err" id="topErr" role="alert"></p>
+    </div>
+    <div id="customBox" hidden>
+      <label for="tpl">Poster URL pattern</label>
+      <input id="tpl" name="tpl" type="text" spellcheck="false" autocapitalize="off" placeholder="https://your-provider/poster/{imdb_id}.jpg?...">
+      <p class="hint">Open your provider's configurator and copy its poster URL. Replace the movie ID in it with <code>{imdb_id}</code> (or <code>{tmdb_id}</code> if it wants a TMDB ID). Where the URL says movie or tv, use <code>{type}</code> so shows work too. Must start with https://.</p>
+      <p class="hint">Providers: <a href="https://github.com/manuel09/erdb" target="_blank" rel="noopener">ERDB</a>, <a href="https://xrdb.alinvps.duckdns.org/configurator" target="_blank" rel="noopener">XRDB</a>, <a href="https://docs.elfhosted.com/app/postersplus/" target="_blank" rel="noopener">Posters+</a>, <a href="https://store.elfhosted.com/product/pictorium/" target="_blank" rel="noopener">Pictorium</a>. Use the Preview button to check that the posters load.</p>
+      <p class="err" id="tplErr" role="alert"></p>
+    </div>
+    <div class="row" id="regionRow">
+      <div>
+        <label for="region">Region</label>
+        <select id="region">
+          <option value="US">United States</option><option value="GB">United Kingdom</option><option value="CA">Canada</option>
+          <option value="AU">Australia</option><option value="DE">Germany</option><option value="FR">France</option>
+          <option value="ES">Spain</option><option value="IT">Italy</option><option value="NL">Netherlands</option>
+          <option value="SE">Sweden</option><option value="BR">Brazil</option><option value="MX">Mexico</option>
+          <option value="IN">India</option><option value="JP">Japan</option><option value="KR">South Korea</option><option value="TR">Turkey</option>
+        </select>
+      </div>
+      <div id="daysBox">
+        <label for="days">Released within</label>
+        <select id="days">
+          <option value="30">Last 30 days</option><option value="60">Last 60 days</option>
+          <option value="90" selected>Last 90 days</option><option value="180">Last 180 days</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="panel" data-panel="releases">
+      <label id="genreLabel">Genre (optional)</label>
+      <div class="chips" id="chips" role="group" aria-labelledby="genreLabel"></div>
+      <div class="chips" id="layRel" role="group" aria-label="Row layout"></div>
+      <p class="hint">Leave it empty to install everything, with a genre filter inside Stremio. Tap genres to pick several. Choose one combined row, or a separate row for each genre. With nothing picked, separate rows means a row for every genre, which is a lot of rows. Want another? Come back, pick different genres, and install again.</p>
+    </div>
+    <div class="panel" data-panel="releases">
+      <label>What to include</label>
+      <label class="sw" for="optMovies" style="margin:0">
+        <span><b>Movies</b><small>Digitally available releases</small></span>
+        <input id="optMovies" type="checkbox" role="switch" checked>
+      </label>
+      <label class="sw" for="optShows" style="margin:0">
+        <span><b>TV shows</b><small>New shows streaming and new episodes this week</small></span>
+        <input id="optShows" type="checkbox" role="switch" checked>
+      </label>
+      <p class="hint">Every catalog also gets a genre filter inside Stremio.</p>
+    </div>
+    <div class="panel" data-panel="trash" hidden>
+      <label id="trashLabel">What counts as trash</label>
+      <div class="chips" id="trashChips" role="group" aria-labelledby="trashLabel"></div>
+      <div class="chips" id="layTrash" role="group" aria-label="Row layout"></div>
+      <p class="hint">Bravo-style reality in its own add-on: franchises like Real Housewives, Below Deck, Vanderpump Rules, Summer House and Love Island. Leave it empty to install every row. Tap rows to pick several, then choose one combined row or separate rows. Want another? Come back, pick different rows, and install again.</p>
+    </div>
+    <div class="panel" data-panel="turkish" hidden>
+      <label id="turkLabel">What to include</label>
+      <div class="chips" id="turkChips" role="group" aria-labelledby="turkLabel"></div>
+      <div class="chips" id="layTurk" role="group" aria-label="Row layout"></div>
+      <p class="hint">Choose separate rows, or one combined row per type (Stremio rows hold one kind of thing, so movies and series can't share a row). Leave it empty to install all three. Tap rows to pick some, and tap again to remove. Want another? Come back, pick different rows, and install again.</p>
+    </div>
+    <div class="panel" data-panel="docs" hidden>
+      <label id="docLabel">What to include</label>
+      <div class="chips" id="docChips" role="group" aria-labelledby="docLabel"></div>
+      <div class="chips" id="layDocs" role="group" aria-label="Row layout"></div>
+      <p class="hint">Choose separate rows, or one combined row per type (Stremio rows hold one kind of thing, so movies and series can't share a row). Leave it empty to install all eight rows. Tap rows to pick some, and tap again to remove. Want another? Come back, pick different rows, and install again.</p>
+    </div>
+    <div class="panel" data-panel="all" hidden>
+      <label id="allLabel">Rows, in order</label>
+      <ol class="order" id="allList" aria-labelledby="allLabel"></ol>
+      <div class="actions"><button class="btn ghost" id="allReset" type="button">Reset everything</button></div>
+      <p class="hint">Every row from Releases, Trash TV, Turkish TV and Documentaries in one add-on. Tick the rows you want and use the arrows to set the order Stremio shows them in. Unticked rows are left out. That's a lot of rows, so untick any you don't need.</p>
+    </div>
+    <div class="panel" data-panel="foryou" hidden>
+      <label id="fyLabel">What to include</label>
+      <div class="chips" id="fyChips" role="group" aria-labelledby="fyLabel"></div>
+      <p class="hint">Recommendations picked for you from movies and shows that are available now. Leave it empty for both rows.</p>
+    </div>
+    <div class="panel" data-panel="foryou" hidden>
+      <label id="deckLabel">Swipe to teach it your taste (optional)</label>
+      <div id="deckBox"></div>
+      <p class="hint" id="wantMsg" aria-live="polite" hidden></p>
+      <p class="hint">Rate 10 movies and 10 shows you know. This works without an AI key: For You recommends titles like the ones you liked and steers away from your nopes. Titles you mark "Want to watch" go first in For You, and onto your Simkl Plan to Watch list if Simkl is connected.</p>
+    </div>
+    <div class="panel" data-panel="foryou" hidden>
+      <label for="aiProv">AI that picks for you</label>
+      <select id="aiProv">
+        <option value="">None: use my swipes, or show popular titles</option>
+        <option value="gemini">Gemini (Google, has a free tier)</option>
+        <option value="groq">Groq (has a free tier)</option>
+        <option value="openrouter">OpenRouter (some free models)</option>
+        <option value="claude">Claude (Anthropic, paid)</option>
+      </select>
+      <div id="aiBox" hidden>
+        <label for="aiKey" style="margin-top:16px">API key</label>
+        <input id="aiKey" type="password" autocomplete="off" spellcheck="false" autocapitalize="off" placeholder="Paste your API key">
+        <p class="hint" id="aiHint"></p>
+        <p class="err" id="aiKeyErr" role="alert"></p>
+        <label for="aiModel">Model (optional)</label>
+        <input id="aiModel" type="text" autocomplete="off" spellcheck="false" autocapitalize="off">
+        <p class="hint" id="aiModelHint"></p>
+        <p class="err" id="aiModelErr" role="alert"></p>
+      </div>
+    </div>
+    <div class="panel" data-panel="foryou" hidden>
+      <label for="taste">What do you like? (optional)</label>
+      <textarea id="taste" maxlength="500" rows="3" placeholder="For example: slow-burn thrillers, Korean dramas, nothing too gory"></textarea>
+      <p class="hint">The AI uses this. Connect Simkl too and it also learns from what you've actually watched.</p>
+    </div>
+    <div class="panel" data-panel="foryou" hidden>
+      <label id="ctxLabel" for="ctxNew">Your own rows (optional)</label>
+      <ul class="ctx-list" id="ctxList" aria-labelledby="ctxLabel"></ul>
+      <div class="ctx-add">
+        <input id="ctxNew" type="text" maxlength="120" autocomplete="off" placeholder="Describe a row, like: cozy rainy Sunday movies">
+        <div class="ctx-type" role="group" aria-label="Row type">
+          <button type="button" class="chip" data-ctxt="m" aria-pressed="true">Movies</button>
+          <button type="button" class="chip" data-ctxt="s" aria-pressed="false">Shows</button>
+        </div>
+        <button class="btn ghost" id="ctxAdd" type="button">Add row</button>
+      </div>
+      <p class="err" id="ctxErr" role="alert"></p>
+      <p class="hint">Each description becomes its own row in Stremio, up to 6. With an AI chosen above, it understands almost anything. Without one, it picks up genres and moods ("funny", "slow-burn"), years ("90s", "after 2015"), languages ("Korean"), "like" a title, and plain keywords ("boat").</p>
+      <label class="sw" for="fySearch" style="margin:0">
+        <span><b>Search by description in Stremio</b><small>Type something like "slow-burn thriller on a boat" into Stremio's search</small></span>
+        <input id="fySearch" type="checkbox" role="switch" checked>
+      </label>
+      <div class="ctx-try">
+        <label for="ctxTry">Try a search</label>
+        <div class="ctx-add">
+          <input id="ctxTry" type="search" maxlength="200" autocomplete="off" placeholder="something like Inception but funnier">
+          <button class="btn ghost" id="ctxTryGo" type="button">Search</button>
+        </div>
+        <p class="hint">Results show in the preview below.</p>
+      </div>
+    </div>
+    <div class="panel" data-panel="foryou" hidden>
+      <label>Simkl (optional)</label>
+      <div id="simklBox"></div>
+      <label class="sw" for="hideWatched" id="hideRow" style="margin:0" hidden>
+        <span><b>Hide what I've watched</b><small>Uses your Simkl history</small></span>
+        <input id="hideWatched" type="checkbox" role="switch" checked>
+      </label>
+    </div>
+    <div class="panel" data-panel="foryou" hidden>
+      <p class="warn">Your AI key and Simkl login are stored in the add-on link, like your other keys. Anyone with the link could use your AI quota (and run up charges on a paid plan), read your Simkl history and add titles to your Simkl lists. Your notes, swipes, row descriptions, searches and watch history are sent to the AI you pick to make the recommendations.</p>
+    </div>
+    <div>
+      <label for="name">Add-on name (optional)</label>
+      <input id="name" name="name" type="text" maxlength="40" autocapitalize="off" placeholder="Digital Releases">
+      <p class="hint">Installing several copies side by side? Give each a different name so you can tell them apart in Stremio.</p>
+    </div>
+
+    <div class="actions">
+      <a class="btn primary" id="install" href="#" aria-disabled="true">Install in Stremio</a>
+      <button class="btn ghost" id="stTop" type="button" disabled>Put it at the top of Stremio</button>
+      <button class="btn ghost" id="copy" type="button" disabled>Copy add-on link</button>
+      <button class="btn ghost" id="preview" type="button" disabled>Preview catalog</button>
+      <button class="btn ghost" id="check" type="button" disabled>Check my setup</button>
+    </div>
+    <ul class="check" id="checkOut" aria-live="polite" hidden></ul>
+    <p class="url" id="url">Enter your TMDB key to generate the add-on link.</p>
+    <p class="warn">Your keys are stored inside the add-on link so Stremio can use them. Don't share the link publicly. This site doesn't save your keys: it passes them on to TMDB (and your poster provider) to fetch titles, but hosting logs may record the addresses requested, which include your link.</p>
+  </form>
+
+  <div class="wall-head">
+    <h2>Preview</h2>
+    <span id="count"></span>
+  </div>
+  <div style="max-width:420px;margin-bottom:14px">
+    <label for="pvCat" style="font-size:.9rem">Catalog to preview</label>
+    <select id="pvCat">
+      <option value="movie/digital-releases">Movies: digitally available</option>
+      <option value="series/streaming-new">Shows: new and streaming</option>
+      <option value="series/streaming-airing">Shows: new episodes this week</option>
+      <option value="movie/foryou-movies">For You: movies</option>
+      <option value="series/foryou-shows">For You: shows</option>
+      <option value="movie/turkish-mix-movies">Turkish TV: one row, movies</option>
+      <option value="series/turkish-mix-series">Turkish TV: one row, series</option>
+      <option value="movie/docs-mix-movies">Documentaries: one row, movies</option>
+      <option value="series/docs-mix-series">Documentaries: one row, series</option>
+      <option value="movie/turkish-movies">Turkish TV: movies</option>
+      <option value="series/turkish-series">Turkish TV: series</option>
+      <option value="series/turkish-reality">Turkish TV: reality</option>
+      <option value="movie/docs-movies">Documentaries: movies</option>
+      <option value="series/docs-series">Documentaries: series</option>
+      <option value="series/crime-series">Documentaries: true crime series</option>
+      <option value="movie/crime-movies">Documentaries: true crime movies</option>
+      <option value="movie/docs-history">Documentaries: history movies</option>
+      <option value="movie/docs-music">Documentaries: music movies</option>
+      <option value="movie/docs-war">Documentaries: war movies</option>
+      <option value="series/docs-war-series">Documentaries: war and politics series</option>
+      <option value="series/trash-mix">Trash TV: one combined row</option>
+      <option value="series/trash-bravo">Trash TV: Bravo universe</option>
+      <option value="series/trash-bravonow">Trash TV: Bravo universe, on now</option>
+      <option value="series/trash-reality">Trash TV: reality, on now</option>
+      <option value="series/trash-dating">Trash TV: dating and love shows</option>
+      <option value="series/trash-drama">Trash TV: reality drama</option>
+      <option value="series/trash-daytime">Trash TV: daytime chaos</option>
+      <option value="series/trash-tlc">Trash TV: train wrecks</option>
+
+      <option value="series/trash-novelas">Trash TV: telenovelas</option>
+    </select>
+    <div id="pvGenreBox">
+      <label for="pvGenre" style="font-size:.9rem;display:block;margin-top:10px">Genre (optional)</label>
+      <select id="pvGenre"><option value="">All genres</option></select>
+    </div>
+  </div>
+  <div class="wall" id="wall"><div class="msg">Press "Preview catalog" to see what your settings return.</div></div>
+
+</div>
+<div class="reel reel-tv" id="reelTv" aria-hidden="true"></div>
+<div class="wrap">
+  <footer>Movie data from TMDB. This product uses the TMDB API but is not endorsed or certified by TMDB. Streaming availability data comes from JustWatch via TMDB. Rating posters come from the provider you choose. TV schedules from <a href="https://www.tvmaze.com" target="_blank" rel="noopener">TVMaze</a>.</footer>
+</div>
+
+<div class="st-sheet" id="stSheet" role="dialog" aria-modal="true" aria-labelledby="stTitle" hidden>
+  <form class="st-card" id="stForm" novalidate autocomplete="on">
+    <h2 id="stTitle">Put it at the top of Stremio</h2>
+    <p id="stLead" class="hint" style="margin:0">Sign in to your Stremio account and this add-on moves to the top of your add-ons, so its rows come first on your home screen. If it isn't installed yet, this installs it too.</p>
+    <div id="stFields">
+      <label for="stEmail">Stremio email</label>
+      <input id="stEmail" type="email" autocomplete="username" spellcheck="false" autocapitalize="off">
+      <label for="stPass">Stremio password</label>
+      <input id="stPass" type="password" autocomplete="current-password">
+      <details id="stKeyBox">
+        <summary>Signed up with Facebook or another login?</summary>
+        <p>Use your Stremio auth key instead. Open <a href="https://web.stremio.com" target="_blank" rel="noopener">web.stremio.com</a> signed in, open the browser console, and run <code>JSON.parse(localStorage.getItem("profile")).auth.key</code>. Paste what it shows here. Treat it like a password.</p>
+        <label for="stKey">Stremio auth key</label>
+        <input id="stKey" type="password" autocomplete="off" spellcheck="false" autocapitalize="off">
+      </details>
+    </div>
+    <p class="err" id="stErr" role="alert" style="margin:0"></p>
+    <p class="hint" id="stStatus" aria-live="polite" style="margin:0"></p>
+    <button class="btn primary" id="stGo" type="submit">Sign in and put it at the top</button>
+    <button class="btn ghost" id="stCancel" type="button">Not now</button>
+    <p class="hint" style="margin:0">Your email and password go straight from this page to Stremio (api.strem.io). This site never receives or saves them, and the page signs out of that Stremio session when it's done.</p>
+  </form>
+</div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const KEY_RE = /^[\w.-]+$/;
+  const RPDB_RE = /^[\w-]+$/;
+  let pickedGenres = []; // genres picked on Releases (empty = every genre)
+  let layoutRel = "one"; // "one" = one combined row, "each" = a row per genre
+  let mode = "releases"; // "releases" or "trash" (the active tab)
+  let pickedTrash = []; // Trash TV rows picked (empty = every row)
+  let layoutTrash = "each"; // "each" = a row per pick, "one" = one combined row
+  let pickedTurk = []; // Turkish TV rows picked (empty = all three)
+  let pickedDocs = []; // Documentaries rows picked (empty = all four)
+  let layoutTurk = "each"; // "one" = one combined row per type, "each" = separate rows
+  let layoutDocs = "each";
+  let allOrder = []; // every Everything row key, in the order to install them
+  let allOn = []; // the ticked keys, in order (unticked rows are left out)
+  let prefillAll = null; // rows from an install link, applied once the row list exists
+  let pickedFy = []; // For You rows picked (empty = both)
+  let simklToken = ""; // Simkl login for For You (kept only in the install link)
+  // Swipe deck answers, as TMDB ids: l = liked, d = nope, w = want to watch (saved in the link as "sw").
+  const emptySwipes = () => ({ movie: { l: [], d: [], w: [] }, tv: { l: [], d: [], w: [] } });
+  let swipes = emptySwipes();
+  // Rows people describe ("cozy rainy Sunday movies"): t = "m" movies or "s" shows. Saved in the link as "ctx".
+  let ctxRows = [], ctxType = "m";
+
+  const enc = (o) => btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  const dec = (s) => JSON.parse(decodeURIComponent(escape(atob(s.replace(/-/g, "+").replace(/_/g, "/")))));
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+  // The stand-alone For You add-on: this same page at /foryou, showing only the For You settings.
+  // Its install links live under /foryou, so it's a separate add-on in Stremio and its Configure button comes back here.
+  const FY_ONLY = window.__FY_ONLY === true || /^\/foryou(\/|$)/.test(location.pathname);
+  const SITE = FY_ONLY ? "/foryou" : "";
+  // For the /foryou app: does the site have its own TMDB key (so the deck can open before you type one),
+  // which screen is showing, and the cards you've rated (for the posters on the "done?" sheet).
+  let siteTmdb = false, fyNeedKey = false, fyStep = "swipe";
+  const seenCards = new Map();
+
+  // Prefill when opened from Stremio's Configure button (/<config>/configure, or /foryou/<config>/configure).
+  const pm = location.pathname.match(/^(?:\/foryou)?\/([^/]+)\/configure\/?$/);
+  if (pm) {
+    try {
+      const c = dec(pm[1]);
+      $("tmdb").value = c.tmdbKey || "";
+      $("rpdb").value = c.rpdbKey || "";
+      $("top").value = c.topKey || "";
+      $("tpl").value = c.posterTemplate || "";
+      $("name").value = c.name || "";
+      $("optMovies").checked = c.movies !== false;
+      $("optShows").checked = c.shows !== false;
+      pickedGenres = (Array.isArray(c.genres) ? c.genres : [c.genre]).filter((g) => typeof g === "string");
+      layoutRel = c.layout === "each" ? "each" : "one";
+      mode = c.mode === "trash" ? "trash" : c.mode === "turkish" ? "turkish" : c.mode === "docs" ? "docs" : c.mode === "all" ? "all" : c.mode === "foryou" ? "foryou" : "releases";
+      prefillAll = Array.isArray(c.allRows) ? c.allRows.filter((k) => typeof k === "string") : null;
+      pickedTrash = Array.isArray(c.trashParts) && c.trashParts.length < 8 ? c.trashParts.filter((p) => typeof p === "string") : [];
+      layoutTrash = c.layout === "one" ? "one" : "each";
+      pickedTurk = Array.isArray(c.turkishParts) && c.turkishParts.length < 3 ? c.turkishParts.filter((p) => typeof p === "string") : [];
+      pickedDocs = Array.isArray(c.docsParts) && c.docsParts.length < 8 ? c.docsParts.filter((p) => typeof p === "string") : [];
+      layoutTurk = c.layout === "one" ? "one" : "each";
+      layoutDocs = c.layout === "one" ? "one" : "each";
+      $("provider").value = c.posterProvider || (c.rpdbKey ? "rpdb" : "tmdb");
+      pickedFy = Array.isArray(c.fyParts) && c.fyParts.length === 1 ? c.fyParts.filter((p) => typeof p === "string") : [];
+      if (["gemini", "groq", "openrouter", "claude"].includes(c.aiProvider)) $("aiProv").value = c.aiProvider;
+      $("aiKey").value = c.aiKey || "";
+      $("aiModel").value = c.aiModel || "";
+      $("taste").value = typeof c.taste === "string" ? c.taste : "";
+      simklToken = typeof c.simklToken === "string" ? c.simklToken : "";
+      $("hideWatched").checked = c.hideWatched !== false;
+      ctxRows = (Array.isArray(c.ctx) ? c.ctx : []).filter((r) => r && typeof r.q === "string" && r.q.trim().length >= 2)
+        .map((r) => ({ q: r.q.trim().slice(0, 120), t: r.t === "s" ? "s" : "m" })).slice(0, 6);
+      $("fySearch").checked = c.fySearch !== false;
+      if (c.sw && typeof c.sw === "object") {
+        for (const [k, kind] of [["m", "movie"], ["t", "tv"]]) {
+          const g = c.sw[k] && typeof c.sw[k] === "object" ? c.sw[k] : {};
+          for (const p of ["l", "d", "w"]) swipes[kind][p] = (Array.isArray(g[p]) ? g[p] : []).map(Number).filter((n) => Number.isInteger(n) && n > 0).slice(0, 30);
+        }
+      }
+      if (c.region) $("region").value = c.region;
+      if (c.days) $("days").value = String(c.days);
+    } catch {}
+  }
+  if (FY_ONLY) {
+    mode = "foryou";
+    document.title = "For You for Stremio";
+    document.querySelector(".tabs").hidden = true;
+    // The page opens on the swipe deck (see fyBoot); this heading belongs to the setup screen that follows it.
+    document.querySelector("header h1").textContent = "You're almost done.";
+    document.querySelector("header .lede").textContent = "Your picks are saved in your install link. Add an AI or connect Simkl if you like, then install For You in Stremio.";
+  }
+
+  function state() {
+    const provider = $("provider").value;
+    const tmdb = $("tmdb").value.trim();
+    const rpdb = $("rpdb").value.trim();
+    const top = $("top").value.trim();
+    const tpl = $("tpl").value.trim();
+    const tmdbBad = tmdb && !KEY_RE.test(tmdb);
+    const rpdbBad = provider === "rpdb" && (!rpdb || !RPDB_RE.test(rpdb));
+    const topBad = provider === "topposters" && (!top || !/^[\w.-]+$/.test(top));
+    const tplBad = provider === "custom" && !(/^https:\/\/[\x21-\x7e]+$/.test(tpl) && /\{(imdb_id|tmdb_id)\}/.test(tpl));
+    $("tmdbErr").textContent = tmdbBad ? "Keys can only contain letters, numbers, dots, dashes and underscores." : "";
+    $("rpdbErr").textContent = rpdbBad && rpdb ? "Keys can only contain letters, numbers, dashes and underscores." : "";
+    $("topErr").textContent = topBad && top ? "Keys can only contain letters, numbers, dots, dashes and underscores." : "";
+    $("tplErr").textContent = tplBad && tpl ? "Use an https:// URL with no spaces that includes {imdb_id} or {tmdb_id}." : "";
+    const aiProv = $("aiProv").value, aiKey = $("aiKey").value.trim(), aiModel = $("aiModel").value.trim();
+    const aiBad = mode === "foryou" && !!aiProv && (!aiKey || aiKey.length > 300 || !/^[\w.:-]+$/.test(aiKey));
+    const modelBad = mode === "foryou" && !!aiProv && !!aiModel && (aiModel.length > 100 || !/^[\w.:/-]+$/.test(aiModel));
+    $("aiKeyErr").textContent = aiBad && aiKey ? "That doesn't look like an API key. Paste it without spaces." : "";
+    $("aiModelErr").textContent = modelBad ? "Model names use letters, numbers, dots, dashes, colons and slashes." : "";
+    const ok = (!!tmdb || (FY_ONLY && siteTmdb)) && !tmdbBad && !rpdbBad && !topBad && !tplBad && !(mode === "all" && !allRowsNow().length) && !aiBad && !modelBad;
+    const cfg = { tmdbKey: tmdb, posterProvider: provider, region: $("region").value, days: Number($("days").value) };
+    const nm = $("name").value.trim();
+    if (nm) cfg.name = nm;
+    if (mode === "trash") {
+      cfg.mode = "trash";
+      if (pickedTrash.length && pickedTrash.length < 8) cfg.trashParts = pickedTrash.slice();
+      if (layoutTrash === "one") cfg.layout = "one";
+    } else if (mode === "turkish") {
+      cfg.mode = "turkish";
+      if (pickedTurk.length && pickedTurk.length < 3) cfg.turkishParts = pickedTurk.slice();
+      if (layoutTurk === "one") cfg.layout = "one";
+    } else if (mode === "all") {
+      cfg.mode = "all";
+      cfg.allRows = allRowsNow();
+      if (pickedTrash.length && pickedTrash.length < 8) cfg.trashParts = pickedTrash.slice();
+      if (pickedTurk.length && pickedTurk.length < 3) cfg.turkishParts = pickedTurk.slice();
+      if (pickedDocs.length && pickedDocs.length < 8) cfg.docsParts = pickedDocs.slice();
+    } else if (mode === "foryou") {
+      cfg.mode = "foryou";
+      if (pickedFy.length === 1) cfg.fyParts = pickedFy.slice();
+      if (aiProv) {
+        cfg.aiProvider = aiProv;
+        cfg.aiKey = aiKey;
+        if (aiModel) cfg.aiModel = aiModel;
+      }
+      const taste = $("taste").value.trim().slice(0, 500);
+      if (taste) cfg.taste = taste;
+      if (simklToken) {
+        cfg.simklToken = simklToken;
+        if (!$("hideWatched").checked) cfg.hideWatched = false;
+      }
+      if (ctxRows.length) cfg.ctx = ctxRows.map((r) => ({ q: r.q, t: r.t }));
+      if (!$("fySearch").checked) cfg.fySearch = false;
+      const sw = swipesCfg();
+      if (sw) cfg.sw = sw;
+    } else if (mode === "docs") {
+      cfg.mode = "docs";
+      if (pickedDocs.length && pickedDocs.length < 8) cfg.docsParts = pickedDocs.slice();
+      if (layoutDocs === "one") cfg.layout = "one";
+    } else {
+      if (!$("optMovies").checked) cfg.movies = false;
+      if (!$("optShows").checked) cfg.shows = false;
+      if (pickedGenres.length) cfg.genres = pickedGenres.slice();
+      if (layoutRel === "each") cfg.layout = "each";
+    }
+    if (provider === "rpdb") cfg.rpdbKey = rpdb;
+    if (provider === "topposters") cfg.topKey = top;
+    if (provider === "custom") cfg.posterTemplate = tpl;
+    const config = enc(cfg);
+    return { ok, config };
+  }
+
+  function update() {
+    syncOptions();
+    $("rpdbBox").hidden = $("provider").value !== "rpdb";
+    $("topBox").hidden = $("provider").value !== "topposters";
+    $("customBox").hidden = $("provider").value !== "custom";
+    const { ok, config } = state();
+    const path = `/${config}/manifest.json`;
+    const install = $("install");
+    install.setAttribute("aria-disabled", String(!ok));
+    install.href = ok ? `stremio://${location.host}${SITE}${path}` : "#";
+    $("copy").disabled = !ok;
+    $("preview").disabled = !ok;
+    $("check").disabled = !ok;
+    $("stTop").disabled = !ok;
+    if (ok && reelFor === "") {
+      const tag = $("tmdb").value.trim();
+      clearTimeout(reelTimer);
+      reelTimer = setTimeout(() => {
+        if (reelFor !== "") return;
+        const c = enc({ tmdbKey: tag, region: $("region").value, days: Number($("days").value) });
+        loadTopFor(mode);
+        loadReel(`/${c}/showcase-tv.json`, tag, "reelTv");
+      }, 600);
+    }
+    $("url").innerHTML = ok ? `Add-on link: <code>${esc(location.origin + SITE + path)}</code>` : "Enter your TMDB key to generate the add-on link.";
+  }
+
+  ["tmdb", "provider", "rpdb", "top", "tpl", "name", "optMovies", "optShows", "region", "days", "aiProv", "aiKey", "aiModel", "taste"].forEach((id) => $(id).addEventListener("input", update));
+  ["aiProv", "hideWatched", "fySearch"].forEach((id) => $(id).addEventListener("change", update));
+  $("pvCat").addEventListener("change", () => { fillGenres(); if (!$("preview").disabled) $("preview").click(); });
+  $("pvGenre").addEventListener("change", () => { if (!$("preview").disabled) $("preview").click(); });
+  // Never allow both switches off: the one just flipped goes back on.
+  ["optMovies", "optShows"].forEach((id) => $(id).addEventListener("change", (e) => {
+    if (!$("optMovies").checked && !$("optShows").checked) e.target.checked = true;
+    update();
+  }));
+
+  // Selecting RPDB prefills the free key if the field is empty.
+  $("provider").addEventListener("change", () => {
+    if ($("provider").value === "rpdb" && !$("rpdb").value.trim()) $("rpdb").value = "t0-free-rpdb";
+    update();
+  });
+  $("install").addEventListener("click", (e) => {
+    if ($("install").getAttribute("aria-disabled") === "true") return e.preventDefault();
+    setTimeout(() => openStremioTop(true), 700); // after the install link opens Stremio, offer to put it first
+  });
+  $("form").addEventListener("submit", (e) => e.preventDefault());
+
+  $("copy").addEventListener("click", async () => {
+    const { config } = state();
+    try { await navigator.clipboard.writeText(`${location.origin}${SITE}/${config}/manifest.json`); $("copy").textContent = "Copied"; }
+    catch { $("copy").textContent = "Copy failed. Select the link below."; }
+    setTimeout(() => ($("copy").textContent = "Copy add-on link"), 2000);
+  });
+
+  const wallHtml = (metas) => metas.map((m) => `
+          <a class="poster" href="stremio:///detail/${m.type === "series" ? "series" : "movie"}/${encodeURIComponent(m.id)}" title="${esc(m.name)}">
+            ${m.poster ? `<img src="${esc(m.poster)}" alt="" loading="lazy">` : `<div class="noimg">${esc(m.name)}</div>`}
+            <div class="cap">${esc(m.name)}${m.releaseInfo ? " (" + esc(m.releaseInfo) + ")" : ""}</div>
+          </a>`).join("");
+  $("preview").addEventListener("click", () => {
+    const { ok, config } = state();
+    if (!ok) return;
+    const wall = $("wall");
+    $("count").textContent = "";
+    wall.innerHTML = Array.from({ length: 12 }, () => '<div class="skeleton"></div>').join("");
+    fetch(`/${config}/catalog/${previewPath()}.json`)
+      .then((r) => r.json().then((j) => { if (!r.ok) throw new Error(j.error || r.status); return j; }))
+      .then(({ metas }) => {
+        if (!metas.length) { wall.innerHTML = '<div class="msg">No titles found for this region and range. Try a longer range.</div>'; return; }
+        $("count").textContent = metas.length + " titles";
+        wall.innerHTML = wallHtml(metas);
+      })
+      .catch((err) => { wall.innerHTML = `<div class="msg">Couldn't load the catalog: ${esc(err.message)}. Check your keys and try again.</div>`; });
+  });
+
+  // Decorative poster strip: shuffled new digital releases. Not clickable.
+  let reelFor = "", reelTimer, topSeq = 0;
+  const shuffle = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  function loadReel(path, tag, el = "reel", seq) {
+    fetch(path)
+      .then((r) => (r.ok ? r.json() : { posters: [] }))
+      .then(({ posters }) => {
+        if (seq !== undefined && seq !== topSeq) return; // a newer request replaced this one
+        if (!posters || !posters.length) {
+          if (seq !== undefined) $(el).classList.remove("on");
+          return;
+        }
+        const imgs = shuffle(posters.slice()).slice(0, 20)
+          .map((u) => `<img src="${esc(u)}" alt="" loading="lazy" draggable="false">`).join("");
+        $(el).innerHTML = `<div class="track">${imgs}${imgs}</div>`;
+        $(el).classList.add("on");
+        if (el === "reel") reelFor = tag;
+      })
+      .catch(() => {});
+  }
+  // Works with no input if the site owner set TMDB_KEY on Vercel; otherwise fills in once a key is entered.
+  // Top strip follows the tab: movies on Releases, trash TV on Trash TV.
+  function loadTopFor(m) {
+    const key = $("tmdb").value.trim();
+    const cfg = { region: $("region").value, days: Number($("days").value) };
+    if (key && KEY_RE.test(key)) cfg.tmdbKey = key; // otherwise the server's own key is used, if set
+    if (m !== "releases") cfg.mode = m;
+    loadReel(`/${enc(cfg)}/showcase.json`, "top-" + m, "reel", ++topSeq);
+  }
+  if (mode !== "releases") loadTopFor(mode);
+  else loadReel("/showcase.json", "default");
+  loadReel("/showcase-tv.json", "default", "reelTv");
+
+  // Genre labels match the server's lists (movies and TV use different ones).
+  const GENRES = {
+    movie: ["Action", "Adventure", "Animation", "Comedy", "Crime", "Documentary", "Drama", "Family", "Fantasy", "History", "Horror", "Music", "Mystery", "Romance", "Science Fiction", "Thriller", "War", "Western"],
+    series: ["Action and Adventure", "Animation", "Comedy", "Crime", "Documentary", "Drama", "Family", "Kids", "Mystery", "Reality", "Sci-Fi and Fantasy", "Soap", "Talk", "War and Politics", "Western"],
+  };
+  function fillGenres() {
+    const kind = $("pvCat").value.split("/")[0];
+    $("pvGenre").innerHTML = '<option value="">All genres</option>' + GENRES[kind].map((g) => `<option>${esc(g)}</option>`).join("");
+  }
+  // Disable preview catalogs and hide strips for anything switched off.
+  function syncOptions() {
+    const { mv, tv } = eff();
+    const sel = $("pvCat");
+    [...sel.options].forEach((o) => {
+      const isTrash = o.value.startsWith("series/trash-");
+      const isTurk = o.value.includes("turkish-");
+      const isDocs = /docs-|crime-/.test(o.value);
+      const isFy = o.value.includes("foryou-");
+      const on = mode === "all" ? false : mode === "releases"
+        ? !isTrash && !isTurk && !isDocs && !isFy && (o.value.startsWith("series") ? tv : mv)
+        : mode === "foryou" ? isFy && fyOn(o.value)
+        : mode === "trash" ? isTrash && trashOn(o.value) : mode === "turkish" ? isTurk && turkOn(o.value) : isDocs && docsOn(o.value);
+      o.disabled = !on;
+      o.hidden = !on;
+    });
+    if (sel.selectedOptions[0].disabled) {
+      const first = [...sel.options].find((o) => !o.disabled);
+      if (first) sel.value = first.value;
+      fillGenres();
+    }
+    $("reel").style.display = mv || mode !== "releases" ? "" : "none";
+    $("reelTv").style.display = tv && mode === "releases" ? "" : "none";
+    // Only the Releases tab has genre filters for the preview to use.
+    const noPvGenre = mode !== "releases" || pickedGenres.length > 0 || layoutRel === "each";
+    $("pvGenreBox").hidden = noPvGenre;
+    $("pvGenre").disabled = noPvGenre;
+    if (noPvGenre) $("pvGenre").value = "";
+    const trashPicks = pickedTrash.length > 0 && pickedTrash.length < TRASH_PARTS.length;
+    const turkPicks = pickedTurk.length > 0 && pickedTurk.length < TURK_PARTS.length;
+    const docPicks = pickedDocs.length > 0 && pickedDocs.length < DOC_PARTS.length;
+    syncAllLayouts();
+    renderAll();
+    const allDefault = allVisible().every((k, i) => k === ALL_KEYS.filter(visibleFor)[i]);
+    $("install").textContent = mode === "trash"
+      ? (trashPicks ? "Install " + pickedTrash.map(trashLabel).join(" + ") : "Install Trash TV")
+      : mode === "turkish"
+      ? (turkPicks ? "Install " + pickedTurk.map(turkLabel).join(" + ") : "Install Turkish TV")
+      : mode === "docs"
+      ? (docPicks ? "Install " + pickedDocs.map(docLabel).join(" + ") : "Install Documentaries")
+      : mode === "foryou"
+      ? (pickedFy.length === 1 ? "Install " + fyLabel(pickedFy[0]) : "Install For You")
+      : mode === "all"
+      ? (allRowsNow().length === allVisible().length && allDefault ? "Install everything" : "Install " + allRowsNow().length + " rows")
+      : pickedGenres.length ? "Install " + pickedGenres.join(" + ") : "Install in Stremio";
+    document.querySelectorAll(".panel").forEach((p) => { p.hidden = p.dataset.panel !== mode; });
+    document.querySelectorAll(".tab").forEach((t) => t.setAttribute("aria-selected", String(t.dataset.mode === mode)));
+    $("daysBox").hidden = !["releases", "all", "foryou"].includes(mode);
+    $("pvCat").disabled = mode === "all";
+    $("regionRow").hidden = mode === "turkish" || mode === "docs"; // Turkish TV is always Turkey; Documentaries don't use a region
+    $("name").placeholder = mode === "trash" ? "Trash TV" : mode === "turkish" ? "Turkish TV" : mode === "docs" ? "Documentaries" : mode === "all" ? "Everything" : mode === "foryou" ? "For You" : "Digital Releases";
+    syncForYou();
+  }
+  fillGenres();
+
+  // Single-genre installs. Some genres exist only for movies or only for shows (mirrors the server).
+  const PICK = ["Action", "Adventure", "Animation", "Comedy", "Crime", "Documentary", "Drama", "Family", "Fantasy", "History", "Horror", "Kids", "Music", "Mystery", "Reality", "Romance", "Science Fiction", "Thriller", "War", "Western"];
+  const MOVIE_ONLY = ["History", "Horror", "Music", "Romance", "Thriller"];
+  const TV_ONLY = ["Kids", "Reality"];
+  // Trash TV rows (mirrors the server): tap one to install just that row; tap it again for every row.
+  const TRASH_PARTS = [["bravo", "Bravo universe"], ["bravonow", "Bravo universe: on now"], ["reality", "Reality: on now"], ["dating", "Dating and love shows"], ["drama", "Reality drama"], ["daytime", "Daytime chaos"], ["tlc", "Train wrecks"], ["novelas", "Telenovelas"]];
+  const trashLabel = (id) => (TRASH_PARTS.find(([k]) => k === id) || [id, id])[1];
+  document.querySelector(".tabs").addEventListener("click", (e) => {
+    const t = e.target.closest(".tab");
+    if (!t || t.dataset.mode === mode) return;
+    mode = t.dataset.mode;
+    update();
+    loadTopFor(mode);
+    if (!$("preview").disabled) $("preview").click();
+  });
+  renderTrashChips();
+
+  // "Check my setup": the server checks TMDB and TVMaze; poster providers are tested from the browser,
+  // so the server never fetches a URL you typed in.
+  const testImage = (url, ms = 8000) => new Promise((resolve) => {
+    const img = new Image();
+    const t = setTimeout(() => resolve(false), ms);
+    img.onload = () => { clearTimeout(t); resolve(true); };
+    img.onerror = () => { clearTimeout(t); resolve(false); };
+    img.src = url;
+  });
+  function posterTest() {
+    const p = $("provider").value;
+    if (p === "rpdb") return ["RPDB", `https://api.ratingposterdb.com/${$("rpdb").value.trim()}/imdb/poster-default/tt0111161.jpg?fallback=true`];
+    if (p === "topposters") return ["Top Posters", `https://api.top-posters.com/${$("top").value.trim()}/imdb/poster/tt0111161.jpg`];
+    if (p === "custom") return ["Your poster pattern", $("tpl").value.trim().split("{imdb_id}").join("tt0111161").split("{tmdb_id}").join("278").split("{type}").join("movie")];
+    return null;
+  }
+  $("check").addEventListener("click", async () => {
+    const { ok, config } = state();
+    if (!ok) return;
+    const list = $("checkOut");
+    const line = (good, text) => `<li class="${good ? "good" : "bad"}"><b>${good ? "✓" : "✗"}</b><span>${esc(text)}</span></li>`;
+    list.hidden = false;
+    list.innerHTML = "<li><span>Checking...</span></li>";
+    let html = "";
+    try {
+      const j = await (await fetch(`/${config}/check.json`)).json();
+      html += line(j.tmdb.ok, j.tmdb.message);
+      if (mode !== "releases" && mode !== "foryou") html += line(j.tvmaze.ok, j.tvmaze.message);
+      if (j.ai) html += line(j.ai.ok, j.ai.message);
+      if (j.simkl) html += line(j.simkl.ok, j.simkl.message);
+    } catch {
+      html += line(false, "Couldn't reach your add-on's server.");
+    }
+    const pt = posterTest();
+    if (pt) {
+      const good = await testImage(pt[1]);
+      html += line(good, good ? pt[0] + " posters load" : pt[0] + " posters didn't load. Check the key or pattern.");
+    }
+    list.innerHTML = html;
+  });
+
+  function eff() {
+    if (mode !== "releases") return { mv: false, tv: true };
+    const picked = pickedGenres;
+    let mv = $("optMovies").checked && (!picked.length || picked.some((g) => !TV_ONLY.includes(g)));
+    let tv = $("optShows").checked && (!picked.length || picked.some((g) => !MOVIE_ONLY.includes(g)));
+    if (!mv && !tv && picked.length) {
+      mv = picked.some((g) => !TV_ONLY.includes(g));
+      tv = picked.some((g) => !MOVIE_ONLY.includes(g));
+    }
+    return { mv, tv };
+  }
+
+  // Which Trash TV options the preview may show: the combined row, or the picked (or every) separate rows.
+  function trashOn(v) {
+    if (v === "series/trash-mix") return layoutTrash === "one";
+    return layoutTrash === "each" && (!pickedTrash.length || pickedTrash.includes(v.slice(13)));
+  }
+
+  // Which genres exist for a type (mirrors the server's GENRE_PICK).
+  const hasType = (g, type) => (type === "movie" ? !TV_ONLY.includes(g) : !MOVIE_ONLY.includes(g));
+  const slugOf = (g) => g.toLowerCase().replace(/\s+/g, "-");
+
+  // The catalog the preview asks for. Separate rows are previewed one genre at a time, since that's what Stremio shows.
+  function previewPath() {
+    const base = $("pvCat").value;
+    if (mode === "all") return allRowsNow()[0] || "movie/digital-releases";
+    if (mode !== "releases") return base;
+    if (layoutRel === "each") {
+      const type = base.startsWith("series") ? "tv" : "movie";
+      const pool = pickedGenres.length ? pickedGenres : PICK;
+      const g = pool.find((x) => hasType(x, type));
+      return g ? `${base}--${slugOf(g)}` : base;
+    }
+    const pg = $("pvGenre").value;
+    return base + (pg && !$("pvGenreBox").hidden ? "/genre=" + encodeURIComponent(pg) : "");
+  }
+
+  // Genre chips: tap to add or remove; any number can be picked.
+  function renderChips() {
+    $("chips").innerHTML = PICK.map((g) =>
+      `<button type="button" class="chip" aria-pressed="${pickedGenres.includes(g)}" data-g="${esc(g)}">${esc(g)}</button>`).join("");
+  }
+  $("chips").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-g]");
+    if (!b) return;
+    const g = b.dataset.g;
+    pickedGenres = pickedGenres.includes(g) ? pickedGenres.filter((x) => x !== g) : [...pickedGenres, g];
+    renderChips(); update();
+    if (!$("preview").disabled) $("preview").click();
+  });
+
+  // Trash TV row chips: tap to add or remove; any number can be picked.
+  function renderTrashChips() {
+    $("trashChips").innerHTML = TRASH_PARTS.map(([id, label]) =>
+      `<button type="button" class="chip" aria-pressed="${pickedTrash.includes(id)}" data-t="${id}">${esc(label)}</button>`).join("");
+  }
+  $("trashChips").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-t]");
+    if (!b) return;
+    const id = b.dataset.t;
+    pickedTrash = pickedTrash.includes(id) ? pickedTrash.filter((x) => x !== id) : [...pickedTrash, id];
+    renderTrashChips(); update();
+    if (!$("preview").disabled) $("preview").click();
+  });
+
+  // Layout: one combined row, or separate rows.
+  const layoutButtons = (cur, eachLabel) =>
+    [["one", "One combined row"], ["each", eachLabel]].map(([v, t]) =>
+      `<button type="button" class="chip" aria-pressed="${v === cur}" data-lay="${v}">${esc(t)}</button>`).join("");
+  function renderLayouts() {
+    $("layRel").innerHTML = layoutButtons(layoutRel, "Separate row per genre");
+    $("layTrash").innerHTML = layoutButtons(layoutTrash, "Separate rows");
+    $("layTurk").innerHTML = layoutButtons(layoutTurk, "Separate rows");
+    $("layDocs").innerHTML = layoutButtons(layoutDocs, "Separate rows");
+  }
+  $("layRel").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-lay]");
+    if (!b) return;
+    layoutRel = b.dataset.lay;
+    renderLayouts(); update();
+    if (!$("preview").disabled) $("preview").click();
+  });
+  $("layTrash").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-lay]");
+    if (!b) return;
+    layoutTrash = b.dataset.lay;
+    renderLayouts(); update();
+    if (!$("preview").disabled) $("preview").click();
+  });
+
+  // Turkish TV rows: movies, series and reality (always Turkey, so no layout or region choice).
+  const TURK_PARTS = [["movies", "Turkish movies"], ["series", "Turkish series"], ["reality", "Turkish reality"]];
+  const turkLabel = (id) => (TURK_PARTS.find(([k]) => k === id) || [id, id])[1];
+  function famOn(v, picks, layout, typeOf, optionOf, mixOf) {
+    if (layout === "one") {
+      const t = v.split("/")[0];
+      return mixOf[t] === v && (!picks.length || picks.some((p) => typeOf[p] === t));
+    }
+    if (Object.values(mixOf).includes(v)) return false;
+    const part = Object.keys(optionOf).find((p) => optionOf[p] === v);
+    return !!part && (!picks.length || picks.includes(part));
+  }
+  const TURK_TYPE = { movies: "movie", series: "series", reality: "series" };
+  const TURK_OPT = { movies: "movie/turkish-movies", series: "series/turkish-series", reality: "series/turkish-reality" };
+  const TURK_MIX = { movie: "movie/turkish-mix-movies", series: "series/turkish-mix-series" };
+  const DOC_TYPE = { docmovies: "movie", docseries: "series", crimeseries: "series", crimemovies: "movie", dochistory: "movie", docmusic: "movie", docwar: "movie", docwarseries: "series" };
+  const DOC_MIX = { movie: "movie/docs-mix-movies", series: "series/docs-mix-series" };
+  function turkOn(v) { return famOn(v, pickedTurk, layoutTurk, TURK_TYPE, TURK_OPT, TURK_MIX); }
+  function docsOn(v) { return famOn(v, pickedDocs, layoutDocs, DOC_TYPE, docOption, DOC_MIX); }
+  function renderTurkChips() {
+    $("turkChips").innerHTML = TURK_PARTS.map(([id, label]) =>
+      `<button type="button" class="chip" aria-pressed="${pickedTurk.includes(id)}" data-tk="${id}">${esc(label)}</button>`).join("");
+  }
+  $("turkChips").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-tk]");
+    if (!b) return;
+    const id = b.dataset.tk;
+    pickedTurk = pickedTurk.includes(id) ? pickedTurk.filter((x) => x !== id) : [...pickedTurk, id];
+    renderTurkChips(); update();
+    if (!$("preview").disabled) $("preview").click();
+  });
+
+  // Documentaries rows: documentary movies and series, plus true crime movies and series.
+  const DOC_PARTS = [["docmovies", "Documentary movies"], ["docseries", "Documentary series"], ["crimeseries", "True crime series"], ["crimemovies", "True crime movies"], ["dochistory", "History documentaries"], ["docmusic", "Music documentaries"], ["docwar", "War documentaries"], ["docwarseries", "War and politics series"]];
+  const docLabel = (id) => (DOC_PARTS.find(([k]) => k === id) || [id, id])[1];
+  // Each row's preview option (matches the server's catalog ids).
+  const docOption = { docmovies: "movie/docs-movies", docseries: "series/docs-series", crimeseries: "series/crime-series", crimemovies: "movie/crime-movies", dochistory: "movie/docs-history", docmusic: "movie/docs-music", docwar: "movie/docs-war", docwarseries: "series/docs-war-series" };
+  function renderDocChips() {
+    $("docChips").innerHTML = DOC_PARTS.map(([id, label]) =>
+      `<button type="button" class="chip" aria-pressed="${pickedDocs.includes(id)}" data-dc="${id}">${esc(label)}</button>`).join("");
+  }
+  $("docChips").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-dc]");
+    if (!b) return;
+    const id = b.dataset.dc;
+    pickedDocs = pickedDocs.includes(id) ? pickedDocs.filter((x) => x !== id) : [...pickedDocs, id];
+    renderDocChips(); update();
+    if (!$("preview").disabled) $("preview").click();
+  });
+
+  // Layout buttons for the Turkish and Documentaries tabs (same behaviour as Releases and Trash TV).
+  $("layTurk").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-lay]");
+    if (!b) return;
+    layoutTurk = b.dataset.lay;
+    renderLayouts(); update();
+    if (!$("preview").disabled) $("preview").click();
+  });
+  $("layDocs").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-lay]");
+    if (!b) return;
+    layoutDocs = b.dataset.lay;
+    renderLayouts(); update();
+    if (!$("preview").disabled) $("preview").click();
+  });
+
+  // Everything: every row, separate or combined. A tab's layout decides which of its rows appear here,
+  // and combined rows are ticked when their tab switches to combined (the same way the tab itself works).
+  const ALL_ROWS = [
+    ["movie/digital-releases", "Releases: digitally available movies"],
+    ["series/streaming-new", "Releases: new shows streaming"],
+    ["series/streaming-airing", "Releases: new episodes this week"],
+    ["series/trash-mix", "Trash TV: one combined row"],
+    ["series/trash-bravo", "Trash TV: Bravo universe"],
+    ["series/trash-bravonow", "Trash TV: Bravo universe, on now"],
+    ["series/trash-reality", "Trash TV: reality, on now"],
+    ["series/trash-dating", "Trash TV: dating and love shows"],
+    ["series/trash-drama", "Trash TV: reality drama"],
+    ["series/trash-daytime", "Trash TV: daytime chaos"],
+    ["series/trash-tlc", "Trash TV: train wrecks"],
+    ["series/trash-novelas", "Trash TV: telenovelas"],
+    ["movie/turkish-mix-movies", "Turkish TV: one row, movies"],
+    ["series/turkish-mix-series", "Turkish TV: one row, series and reality"],
+    ["movie/turkish-movies", "Turkish TV: movies"],
+    ["series/turkish-series", "Turkish TV: series"],
+    ["series/turkish-reality", "Turkish TV: reality"],
+    ["movie/docs-mix-movies", "Documentaries: one row, movies"],
+    ["series/docs-mix-series", "Documentaries: one row, series"],
+    ["movie/docs-movies", "Documentaries: movies"],
+    ["series/docs-series", "Documentaries: series"],
+    ["series/crime-series", "Documentaries: true crime series"],
+    ["movie/crime-movies", "Documentaries: true crime movies"],
+    ["movie/docs-history", "Documentaries: history movies"],
+    ["movie/docs-music", "Documentaries: music movies"],
+    ["movie/docs-war", "Documentaries: war movies"],
+    ["series/docs-war-series", "Documentaries: war and politics series"],
+  ];
+  const ALL_KEYS = ALL_ROWS.map((r) => r[0]);
+  const allLabel = (k) => (ALL_ROWS.find((r) => r[0] === k) || [k, k])[1];
+  const isMixKey = (k) => /-mix-|-mix$/.test(k);
+  const famOf = (k) => (k.startsWith("movie/digital") || k.startsWith("series/streaming") ? "releases"
+    : k.includes("trash") ? "trash" : k.includes("turkish") ? "turkish" : "docs");
+  const layoutOf = (f) => (f === "trash" ? layoutTrash : f === "turkish" ? layoutTurk : f === "docs" ? layoutDocs : "each");
+  // A combined row only appears when its type has a pick (or nothing is picked); separate rows always follow the tab's layout.
+  const picksFor = (f, type) => f === "trash" ? true
+    : f === "turkish" ? (!pickedTurk.length || pickedTurk.some((p) => TURK_TYPE[p] === type))
+    : (!pickedDocs.length || pickedDocs.some((p) => DOC_TYPE[p] === type));
+  function visibleFor(k) {
+    const f = famOf(k);
+    if (f === "releases") return !isMixKey(k);
+    if (isMixKey(k)) return layoutOf(f) === "one" && picksFor(f, k.split("/")[0]);
+    return layoutOf(f) !== "one";
+  }
+  const allVisible = () => allOrder.filter(visibleFor);
+  const allRowsNow = () => allVisible().filter((k) => allOn.includes(k));
+  const lastLayout = {};
+  function syncAllLayouts() {
+    for (const f of ["trash", "turkish", "docs"]) {
+      const cur = layoutOf(f);
+      if (lastLayout[f] !== undefined && lastLayout[f] !== cur) {
+        for (const k of allOrder) if (famOf(k) === f && visibleFor(k) && !allOn.includes(k)) allOn.push(k);
+      }
+      lastLayout[f] = cur;
+    }
+  }
+  if (!allOrder.length) allOrder = ALL_KEYS.slice();
+  // Install links say which rows they had; that also tells us each tab's layout.
+  if (prefillAll && prefillAll.length) {
+    const has = (k) => prefillAll.includes(k);
+    for (const f of ["trash", "turkish", "docs"]) {
+      const keys = ALL_KEYS.filter((k) => famOf(k) === f);
+      const mix = keys.filter(isMixKey), sep = keys.filter((k) => !isMixKey(k));
+      if (mix.some(has)) layoutSet(f, "one");
+      else if (sep.some(has)) layoutSet(f, "each");
+    }
+  }
+  function layoutSet(f, v) {
+    if (f === "trash") layoutTrash = v;
+    else if (f === "turkish") layoutTurk = v;
+    else if (f === "docs") layoutDocs = v;
+  }
+  if (prefillAll && prefillAll.some((k) => ALL_KEYS.includes(k))) {
+    const keep = prefillAll.filter((k) => ALL_KEYS.includes(k));
+    allOrder = [...keep, ...ALL_KEYS.filter((k) => !keep.includes(k))];
+    allOn = keep.slice();
+  } else {
+    allOn = allOrder.slice();
+  }
+  function renderAll() {
+    const vis = allVisible();
+    $("allList").innerHTML = vis.map((k, i) => `<li data-row="${esc(k)}">
+        <span class="grip" data-grip="${esc(k)}" role="img" aria-label="Drag to move" title="Drag to move">⋮⋮</span>
+        <label><input type="checkbox" data-ck="${esc(k)}" ${allOn.includes(k) ? "checked" : ""}> <span>${esc(allLabel(k))}</span></label>
+        <span class="mv">
+          <button type="button" data-mv="top" data-k="${esc(k)}" aria-label="Move to top" ${i === 0 ? "disabled" : ""}>Top</button>
+          <button type="button" data-mv="-1" data-k="${esc(k)}" aria-label="Move up" ${i === 0 ? "disabled" : ""}>▲</button>
+          <button type="button" data-mv="1" data-k="${esc(k)}" aria-label="Move down" ${i === vis.length - 1 ? "disabled" : ""}>▼</button>
+          <button type="button" data-mv="bottom" data-k="${esc(k)}" aria-label="Move to bottom" ${i === vis.length - 1 ? "disabled" : ""}>Bottom</button>
+        </span>
+      </li>`).join("");
+  }
+  // Moves a row to a position among the visible rows; hidden rows keep their slots.
+  function moveTo(k, target) {
+    const vis = allVisible().filter((x) => x !== k);
+    target = Math.max(0, Math.min(vis.length, target));
+    vis.splice(target, 0, k);
+    const slots = allOrder.map((x, i) => (visibleFor(x) ? i : -1)).filter((i) => i >= 0);
+    const next = allOrder.slice();
+    slots.forEach((slot, n) => { next[slot] = vis[n]; });
+    allOrder = next;
+  }
+  $("allList").addEventListener("change", (e) => {
+    const cb = e.target.closest("input[data-ck]");
+    if (!cb) return;
+    const k = cb.dataset.ck;
+    if (cb.checked) { if (!allOn.includes(k)) allOn.push(k); }
+    else allOn = allOn.filter((x) => x !== k);
+    update();
+    if (!$("preview").disabled) $("preview").click();
+  });
+  // Buttons: Top, Bottom, or one step up/down (data-mv is "top", "bottom", or -1/1).
+  $("allList").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-mv]");
+    if (!b || b.disabled) return;
+    const k = b.dataset.k, vis = allVisible(), vi = vis.indexOf(k);
+    const m = b.dataset.mv;
+    const target = m === "top" ? 0 : m === "bottom" ? vis.length - 1 : vi + Number(m);
+    if (target < 0 || target >= vis.length) return;
+    moveTo(k, target);
+    renderAll(); update();
+    if (!$("preview").disabled) $("preview").click();
+  });
+  // Drag by the handle (mouse, pen or touch): drop a row onto another row to place it there.
+  let drag = null;
+  $("allList").addEventListener("pointerdown", (e) => {
+    const g = e.target.closest("[data-grip]");
+    if (!g) return;
+    drag = { k: g.dataset.grip, over: null, li: g.closest("li") };
+    drag.li.classList.add("dragging");
+    if (g.setPointerCapture) g.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  $("allList").addEventListener("pointermove", (e) => {
+    if (!drag) return;
+    const under = document.elementFromPoint(e.clientX, e.clientY);
+    const li = under && under.closest ? under.closest("li[data-row]") : null;
+    document.querySelectorAll("#allList li").forEach((x) => x.classList.remove("drop"));
+    if (li) li.classList.add("drop");
+    drag.over = li ? li.dataset.row : null;
+  });
+  function endDrag(apply) {
+    if (!drag) return;
+    const { k, over, li } = drag;
+    drag = null;
+    if (li) li.classList.remove("dragging");
+    document.querySelectorAll("#allList li").forEach((x) => x.classList.remove("drop"));
+    if (apply && over && over !== k) {
+      moveTo(k, allVisible().indexOf(over));
+      renderAll(); update();
+      if (!$("preview").disabled) $("preview").click();
+    }
+  }
+  $("allList").addEventListener("pointerup", () => endDrag(true));
+  $("allList").addEventListener("pointercancel", () => endDrag(false));
+  // Reset everything: back to the default state on every tab, and the Everything order and ticks.
+  $("allReset").addEventListener("click", () => {
+    pickedGenres = [];
+    layoutRel = "one";
+    pickedTrash = [];
+    layoutTrash = "each";
+    pickedTurk = [];
+    layoutTurk = "each";
+    pickedDocs = [];
+    layoutDocs = "each";
+    $("optMovies").checked = true;
+    $("optShows").checked = true;
+    allOrder = ALL_KEYS.slice();
+    allOn = allOrder.slice();
+    pickedFy = [];
+    $("hideWatched").checked = true;
+    renderChips(); renderTrashChips(); renderLayouts(); renderTurkChips(); renderDocChips(); renderFyChips();
+    renderAll(); update();
+    if (!$("preview").disabled) $("preview").click();
+  });
+  renderAll();
+
+  // ---- For You ----
+  const FY_PARTS_UI = [["movies", "For You: movies"], ["shows", "For You: shows"]];
+  const fyLabel = (id) => (FY_PARTS_UI.find(([k]) => k === id) || [id, id])[1];
+  function fyOn(v) {
+    const row = v.match(/^(movie|series)\/foryou-ctx-(\d)$/);
+    if (row) { const r = ctxRows[Number(row[2])]; return !!r && (r.t === "s" ? "series" : "movie") === row[1]; }
+    const part = v === "movie/foryou-movies" ? "movies" : v === "series/foryou-shows" ? "shows" : "";
+    return !!part && (!pickedFy.length || pickedFy.includes(part));
+  }
+  function renderFyChips() {
+    $("fyChips").innerHTML = FY_PARTS_UI.map(([id, label]) =>
+      `<button type="button" class="chip" aria-pressed="${pickedFy.includes(id)}" data-fy="${id}">${esc(label)}</button>`).join("");
+  }
+  $("fyChips").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-fy]");
+    if (!b) return;
+    const id = b.dataset.fy;
+    pickedFy = pickedFy.includes(id) ? pickedFy.filter((x) => x !== id) : [...pickedFy, id];
+    if (pickedFy.length === FY_PARTS_UI.length) pickedFy = []; // both picked = both rows
+    renderFyChips(); update();
+    if (!$("preview").disabled) $("preview").click();
+  });
+
+  // ---- Your own rows and description search (same on the For You tab and the /foryou app) ----
+  function syncCtxOptions() {
+    const sel = $("pvCat");
+    sel.querySelectorAll("option[data-ctx]").forEach((o) => o.remove());
+    const anchor = sel.querySelector('option[value="series/foryou-shows"]');
+    ctxRows.forEach((r, i) => {
+      const o = document.createElement("option");
+      o.value = `${r.t === "s" ? "series" : "movie"}/foryou-ctx-${i}`;
+      o.textContent = `Your row: ${r.q}`;
+      o.dataset.ctx = "1";
+      anchor.after(o);
+    });
+  }
+  function renderCtx() {
+    $("ctxList").innerHTML = ctxRows.map((r, i) => `<li>
+        <span>${esc(r.q)}<small>${r.t === "s" ? "Shows" : "Movies"}</small></span>
+        <div class="mv">
+          <button type="button" data-ctxa="type" data-i="${i}" aria-label="Switch to ${r.t === "s" ? "movies" : "shows"}">${r.t === "s" ? "Make it movies" : "Make it shows"}</button>
+          <button type="button" data-ctxa="preview" data-i="${i}">Preview</button>
+          <button type="button" data-ctxa="remove" data-i="${i}" aria-label="Remove ${esc(r.q)}">Remove</button>
+        </div>
+      </li>`).join("");
+    document.querySelectorAll("button[data-ctxt]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.ctxt === ctxType)));
+    const full = ctxRows.length >= 6;
+    $("ctxAdd").disabled = full;
+    $("ctxNew").disabled = full;
+    $("ctxNew").placeholder = full ? "That's 6 rows, the most you can add" : "Describe a row, like: cozy rainy Sunday movies";
+    syncCtxOptions();
+  }
+  function addCtx() {
+    const q = $("ctxNew").value.replace(/\s+/g, " ").trim();
+    $("ctxErr").textContent = "";
+    if (q.length < 2) { $("ctxErr").textContent = "Describe the row in a few words first."; return; }
+    if (ctxRows.length >= 6) { $("ctxErr").textContent = "You can have up to 6 rows. Remove one to add another."; return; }
+    if (ctxRows.some((r) => r.q.toLowerCase() === q.toLowerCase() && r.t === ctxType)) { $("ctxErr").textContent = "You already have that row."; return; }
+    ctxRows.push({ q: q.slice(0, 120), t: ctxType });
+    $("ctxNew").value = "";
+    renderCtx();
+    update();
+    previewCtx(ctxRows.length - 1);
+  }
+  function previewCtx(i) {
+    const r = ctxRows[i];
+    if (!r || $("preview").disabled) return;
+    syncOptions();
+    $("pvCat").value = `${r.t === "s" ? "series" : "movie"}/foryou-ctx-${i}`;
+    $("preview").click();
+  }
+  $("ctxAdd").addEventListener("click", addCtx);
+  $("ctxNew").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); addCtx(); } });
+  document.querySelector(".ctx-type").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-ctxt]");
+    if (!b) return;
+    ctxType = b.dataset.ctxt;
+    renderCtx();
+  });
+  $("ctxList").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-ctxa]");
+    if (!b) return;
+    const i = Number(b.dataset.i);
+    if (!ctxRows[i]) return;
+    if (b.dataset.ctxa === "remove") ctxRows.splice(i, 1);
+    else if (b.dataset.ctxa === "type") ctxRows[i].t = ctxRows[i].t === "s" ? "m" : "s";
+    renderCtx();
+    update();
+    if (b.dataset.ctxa === "preview" || b.dataset.ctxa === "type") previewCtx(i);
+  });
+  // "Try a search": the same search Stremio's search bar will run, shown in the preview.
+  async function trySearch() {
+    const q = $("ctxTry").value.replace(/\s+/g, " ").trim();
+    const wall = $("wall");
+    if (q.length < 2) return;
+    const { ok, config } = state();
+    if (!ok) { wall.innerHTML = '<div class="msg">Add your TMDB key first.</div>'; return; }
+    if (!$("fySearch").checked) { wall.innerHTML = '<div class="msg">Turn on "Search by description in Stremio" to try it.</div>'; return; }
+    $("count").textContent = "";
+    wall.innerHTML = Array.from({ length: 12 }, () => '<div class="skeleton"></div>').join("");
+    const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    document.querySelector(".wall-head").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+    const one = (type) => fetch(`/${config}/catalog/${type}/foryou-search/search=${encodeURIComponent(q)}.json`)
+      .then((r) => r.json()).then((j) => (Array.isArray(j.metas) ? j.metas : [])).catch(() => []);
+    const [mv, tv] = await Promise.all([one("movie"), one("series")]);
+    const metas = [];
+    for (let i = 0; i < Math.max(mv.length, tv.length) && metas.length < 40; i++) { if (mv[i]) metas.push(mv[i]); if (tv[i]) metas.push(tv[i]); }
+    if (!metas.length) { wall.innerHTML = `<div class="msg">Nothing found for "${esc(q)}". Try other words, or pick an AI above for better matching.</div>`; return; }
+    $("count").textContent = `${metas.length} results for "${q.length > 30 ? q.slice(0, 29) + "…" : q}"`;
+    wall.innerHTML = wallHtml(metas);
+  }
+  $("ctxTryGo").addEventListener("click", trySearch);
+  $("ctxTry").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); trySearch(); } });
+  // Per-provider help: where to get a key, and the model used when the box is left empty.
+  const AI_HELP = {
+    gemini: { hint: 'Get a free key at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com</a>. On the free tier, Google may use what you send to improve its products.', model: "gemini-3.5-flash-lite" },
+    groq: { hint: 'Get a free key at <a href="https://console.groq.com/keys" target="_blank" rel="noopener">console.groq.com</a>.', model: "llama-3.3-70b-versatile" },
+    openrouter: { hint: 'Get a key at <a href="https://openrouter.ai/keys" target="_blank" rel="noopener">openrouter.ai</a>. To stay free, enter a model whose name ends in :free.', model: "" },
+    claude: { hint: 'Get a key at <a href="https://platform.claude.com" target="_blank" rel="noopener">platform.claude.com</a>. Claude is paid per use; the default model is the cheapest one.', model: "claude-haiku-5-5" },
+  };
+  function syncForYou() {
+    const p = $("aiProv").value;
+    $("aiBox").hidden = !p;
+    if (p) {
+      $("aiHint").innerHTML = AI_HELP[p].hint;
+      $("aiModel").placeholder = AI_HELP[p].model || "Leave blank for your OpenRouter default";
+      $("aiModelHint").textContent = AI_HELP[p].model ? `Leave blank to use ${AI_HELP[p].model}.` : "Leave blank to use the default model set in your OpenRouter account.";
+    }
+    $("hideRow").hidden = !simklToken;
+  }
+
+  // Simkl PIN login: the site asks Simkl for a short code, you enter it at simkl.com/pin, and this page waits for approval.
+  let simklAvail = null; // null while checking
+  let skFlow = null;
+  let skMsg = "";
+  const safeSimklLink = (u) => (/^https:\/\/simkl\.com\/[\w/?=&.-]*$/.test(String(u || "")) ? u : "https://simkl.com/pin");
+  function renderSimkl() {
+    const box = $("simklBox");
+    if (simklToken) {
+      box.innerHTML = `<p class="sk-ok"><b>✓ Simkl connected.</b> For You learns from your watch history.</p>
+        <button class="btn ghost" type="button" data-sk="disconnect">Disconnect</button>
+        <p class="hint">Disconnect removes it from this link. To revoke access completely, remove the app at <a href="https://simkl.com/settings/apps" target="_blank" rel="noopener">simkl.com/settings/apps</a>.</p>`;
+    } else if (skFlow) {
+      box.innerHTML = `<p style="margin:0">Open <a href="${esc(skFlow.link)}" target="_blank" rel="noopener">simkl.com/pin</a> and enter this code:</p>
+        <p class="pin">${esc(skFlow.user_code)}</p>
+        <p class="hint" style="margin-top:0">Waiting for you to approve it there. This page updates by itself.</p>
+        <button class="btn ghost" type="button" data-sk="cancel">Cancel</button>`;
+    } else if (simklAvail === false) {
+      box.innerHTML = `<p class="hint" style="margin-top:0">This site isn't set up for Simkl yet. Whoever runs it can turn it on by adding a Simkl app ID (the README explains how).</p>`;
+    } else {
+      box.innerHTML = `${skMsg ? `<p class="err" style="margin-top:0">${esc(skMsg)}</p>` : ""}
+        <button class="btn ghost" type="button" data-sk="connect" ${simklAvail === null ? "disabled" : ""}>Connect Simkl</button>
+        <p class="hint">Simkl shows a short code to enter on its site. The add-on can read your history, and adds titles to your Plan to Watch list only when you tap "Want to watch".</p>`;
+    }
+    syncForYou();
+  }
+  function skSchedule() {
+    if (skFlow) skFlow.timer = setTimeout(skPoll, skFlow.interval * 1000);
+  }
+  async function skConnect() {
+    skMsg = "";
+    try {
+      const r = await (await fetch("/simkl/start", { method: "POST" })).json();
+      if (!r.user_code || !r.device_code) throw new Error(r.message || "Couldn't start the Simkl login. Try again.");
+      skFlow = {
+        user_code: String(r.user_code),
+        link: safeSimklLink(r.verification_uri_complete || r.verification_uri),
+        device_code: String(r.device_code),
+        interval: Math.max(5, Number(r.interval) || 5),
+        deadline: Date.now() + (Number(r.expires_in) || 900) * 1000,
+      };
+      renderSimkl();
+      skSchedule();
+    } catch (e) {
+      skMsg = e.message;
+      renderSimkl();
+    }
+  }
+  async function skPoll() {
+    const f = skFlow;
+    if (!f) return;
+    if (Date.now() > f.deadline) { skFlow = null; skMsg = "The code expired. Try again."; renderSimkl(); return; }
+    let r;
+    try {
+      r = await (await fetch("/simkl/poll", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ device_code: f.device_code }) })).json();
+    } catch {
+      r = { state: "pending" };
+    }
+    if (skFlow !== f) return; // cancelled meanwhile
+    if (r.state === "ok" && r.token) {
+      simklToken = String(r.token); skFlow = null; renderSimkl(); update();
+      if (wantQueue.length) flushWants(); // "Want to watch" picks made before connecting
+      return;
+    }
+    if (r.state === "expired") { skFlow = null; skMsg = "The code expired. Try again."; renderSimkl(); return; }
+    if (r.state === "error") { skFlow = null; skMsg = r.message || "The Simkl login didn't work. Try again."; renderSimkl(); return; }
+    if (r.state === "slow_down") f.interval += 5;
+    skSchedule();
+  }
+  $("simklBox").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-sk]");
+    if (!b || b.disabled) return;
+    const a = b.dataset.sk;
+    if (a === "connect") skConnect();
+    else if (a === "cancel") { if (skFlow) clearTimeout(skFlow.timer); skFlow = null; renderSimkl(); }
+    else if (a === "disconnect") { simklToken = ""; needScope = false; renderSimkl(); renderWantMsg(); update(); }
+  });
+
+  // ---- Swipe deck: 10 movies and 10 shows to like, nope, skip ("Haven't seen") or want to watch ----
+  const DECK_GOAL = 10;
+  const KIND_WORD = { movie: "Movies", tv: "Shows" };
+  const CHOICES = { l: "Like", d: "Nope", w: "Want to watch", s: "Haven't seen" };
+  let deck = null; // { loading, error, pools:{movie,tv}, kinds, k, answered:{movie,tv}, history, busy }
+  let wantQueue = []; // want-to-watch picks waiting to go to Simkl: { kind, tmdb, title, year }
+  const wantSent = new Set(); // "kind:id" already added to Simkl
+  let wantMsg = "", needScope = false, wantTimer = null, flushing = false;
+  const reduceMotion = () => window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function swipesCfg() {
+    const o = {};
+    for (const [kind, k] of [["movie", "m"], ["tv", "t"]]) {
+      const g = {};
+      for (const p of ["l", "d", "w"]) if (swipes[kind][p].length) g[p] = swipes[kind][p].slice(-30);
+      if (Object.keys(g).length) o[k] = g;
+    }
+    return Object.keys(o).length ? o : null;
+  }
+  const swipeTotal = (kind) => swipes[kind].l.length + swipes[kind].d.length + swipes[kind].w.length;
+  function unswipe(kind, id) {
+    for (const p of ["l", "d", "w"]) swipes[kind][p] = swipes[kind][p].filter((x) => x !== id);
+  }
+  function addSwipe(kind, id, p) {
+    unswipe(kind, id);
+    swipes[kind][p].push(id);
+    if (swipes[kind][p].length > 30) swipes[kind][p].shift(); // keep the newest 30
+  }
+  function swipeSummary() {
+    const part = (kind) => {
+      const s = swipes[kind];
+      if (!swipeTotal(kind)) return "";
+      return `${KIND_WORD[kind]}: <b>${s.l.length}</b> liked, ${s.d.length} nope, ${s.w.length} want to watch`;
+    };
+    return ["movie", "tv"].map(part).filter(Boolean).join("<br>");
+  }
+  function deckKinds() {
+    return pickedFy.length === 1 ? [pickedFy[0] === "movies" ? "movie" : "tv"] : ["movie", "tv"];
+  }
+  // Shuffle, drop titles already swiped, and spread genres out so the deck doesn't show three dramas in a row.
+  function orderDeck(list, kind) {
+    const done = new Set([...swipes[kind].l, ...swipes[kind].d, ...swipes[kind].w]);
+    const pool = shuffle((Array.isArray(list) ? list : []).filter((x) => x && Number.isInteger(x.id) && !done.has(x.id)));
+    const out = [], recent = [];
+    while (pool.length) {
+      let i = pool.findIndex((x) => !recent.includes((x.genres || [])[0]));
+      if (i < 0) i = 0;
+      const [x] = pool.splice(i, 1);
+      out.push(x);
+      recent.push((x.genres || [])[0]);
+      if (recent.length > 2) recent.shift();
+    }
+    return out;
+  }
+  const curKind = () => deck && deck.kinds[deck.k];
+  const deckDone = () => !!deck && !deck.loading && !deck.error && deck.k >= deck.kinds.length;
+  function skipFinishedKinds() {
+    while (deck.k < deck.kinds.length) {
+      const kind = deck.kinds[deck.k];
+      if (deck.answered[kind] < DECK_GOAL && deck.pools[kind].length) break;
+      deck.k++;
+    }
+  }
+
+  async function startDeck() {
+    const key = $("tmdb").value.trim();
+    const keyOk = !!key && KEY_RE.test(key);
+    if (!keyOk && !(FY_ONLY && siteTmdb)) { deck = { error: "Enter your TMDB key above first." }; renderDeck(); return; }
+    deck = { loading: true };
+    renderDeck();
+    const c = keyOk ? { tmdbKey: key } : {}; // no key: the site's own TMDB key is used
+    if (simklToken) c.simklToken = simklToken; // so titles you've watched or already planned are skipped
+    try {
+      const r = await fetch(`/${enc(c)}/deck.json`);
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error || "error " + r.status);
+      deck = { pools: { movie: orderDeck(j.movies, "movie"), tv: orderDeck(j.shows, "tv") }, kinds: deckKinds(), k: 0, answered: { movie: 0, tv: 0 }, history: [] };
+      skipFinishedKinds();
+    } catch (e) {
+      deck = { error: `Couldn't load the cards: ${e.message}` };
+    }
+    renderDeck();
+    const st = document.querySelector("#deckBox .stack");
+    if (st && !FY_ONLY) st.focus({ preventScroll: true }); // the For You app takes focus only once you use the keyboard
+  }
+  function moreDeck() {
+    if (!deck || !deck.pools) return startDeck();
+    deck.answered = { movie: 0, tv: 0 };
+    deck.kinds = deckKinds();
+    deck.k = 0;
+    skipFinishedKinds();
+    renderDeck();
+  }
+
+  function answer(choice) {
+    const kind = curKind();
+    if (!kind) return;
+    const card = deck.pools[kind].shift();
+    if (!card) return;
+    deck.history.push({ kind, card, choice, k: deck.k });
+    seenCards.set(kind + ":" + card.id, card);
+    if (choice !== "s") {
+      addSwipe(kind, card.id, choice);
+      deck.answered[kind]++;
+    }
+    if (choice === "w") queueWant(kind, card);
+    skipFinishedKinds();
+    renderDeck();
+    update();
+    if (deckDone() && FY_ONLY) openSheet(true); // the For You app asks "done?" when the deck runs out
+    else if (deckDone() && !$("preview").disabled) $("preview").click(); // show what the swipes changed
+    else { const st = document.querySelector("#deckBox .stack"); if (st) st.focus({ preventScroll: true }); }
+  }
+  function undo() {
+    const h = deck && deck.history && deck.history.pop();
+    if (!h) return;
+    if (h.choice !== "s") { unswipe(h.kind, h.card.id); deck.answered[h.kind]--; }
+    if (h.choice === "w") unqueueWant(h.kind, h.card.id);
+    deck.pools[h.kind].unshift(h.card);
+    deck.k = h.k;
+    renderDeck();
+    update();
+  }
+  function clearSwipes() {
+    swipes = emptySwipes();
+    wantQueue = [];
+    clearTimeout(wantTimer);
+    if (deck && deck.history) deck = null;
+    wantMsg = "";
+    renderDeck(); renderWantMsg(); update();
+  }
+
+  // Animate the top card off screen, then record the answer.
+  const FLY = { l: "translate(150%,-4%) rotate(22deg)", d: "translate(-150%,-4%) rotate(-22deg)", w: "translate(0,-150%)", s: "translate(0,150%)" };
+  function fly(choice) {
+    if (!deck || deck.busy || !curKind()) return;
+    const card = document.querySelector("#deckBox .card.top");
+    if (!card || reduceMotion()) return answer(choice);
+    deck.busy = true;
+    card.classList.remove("dragging");
+    card.style.transform = FLY[choice];
+    card.style.opacity = "0";
+    setTimeout(() => { deck.busy = false; answer(choice); }, 200);
+  }
+
+  function cardHtml(c, top) {
+    const meta = [c.year, ...(c.genres || [])].filter(Boolean).map(esc).join(" · ");
+    return `<div class="card ${top ? "top" : "behind"}" ${top ? "" : 'aria-hidden="true"'}>
+      <img src="${esc(c.poster)}" alt="" draggable="false">
+      ${top ? '<span class="stamp yes">LIKE</span><span class="stamp no">NOPE</span><span class="stamp want">WANT IT</span>' : ""}
+      <div class="info"><b>${esc(c.title)}</b><small>${meta}</small>${c.overview ? `<p>${esc(c.overview)}</p>` : ""}</div>
+    </div>`;
+  }
+  function renderDeck() {
+    if (FY_ONLY) return renderTinder(); // same deck, Tinder-style look on the /foryou app
+    const box = $("deckBox");
+    const sum = swipeSummary();
+    if (!deck || deck.error) {
+      const any = swipeTotal("movie") + swipeTotal("tv") > 0;
+      box.innerHTML = `${deck && deck.error ? `<p class="err" style="margin-top:0">${esc(deck.error)}</p>` : ""}
+        ${any ? `<p class="sw-sum">${sum}</p>` : ""}
+        <div class="actions" style="margin-top:0">
+          <button class="btn ghost" type="button" data-deck="start">${any ? "Swipe more" : "Start swiping"}</button>
+          ${any ? '<button class="btn ghost" type="button" data-deck="clear">Clear swipes</button>' : ""}
+        </div>`;
+      return;
+    }
+    if (deck.loading) { box.innerHTML = '<p class="hint" style="margin-top:0">Shuffling the cards…</p>'; return; }
+    if (deckDone()) {
+      const left = deck.kinds.some((k) => deck.pools[k].length);
+      box.innerHTML = `<p class="sw-sum"><b>Done.</b> Your swipes are saved in the install link, so install (or reinstall) to use them.<br>${sum}</p>
+        <div class="actions" style="margin-top:0">
+          ${left ? `<button class="btn ghost" type="button" data-deck="more">Swipe ${DECK_GOAL} more</button>` : ""}
+          <button class="btn ghost" type="button" data-deck="undo" ${deck.history.length ? "" : "disabled"}>Undo last</button>
+          <button class="btn ghost" type="button" data-deck="clear">Clear swipes</button>
+        </div>`;
+      return;
+    }
+    const kind = curKind();
+    const n = deck.answered[kind];
+    const [a, b] = deck.pools[kind];
+    const step = deck.kinds.length > 1 ? ` (${deck.k + 1} of ${deck.kinds.length})` : "";
+    box.innerHTML = `<div class="deck">
+        <div class="deck-top"><b>${KIND_WORD[kind]}${step}</b><span>${n} of ${DECK_GOAL} rated</span></div>
+        <div class="bar" aria-hidden="true"><i style="width:${(n / DECK_GOAL) * 100}%"></i></div>
+        <div class="stack" tabindex="0" role="group" aria-label="${esc(a.title)}${a.year ? " (" + esc(a.year) + ")" : ""}. Arrow keys: right like, left nope, up want to watch, down haven't seen.">
+          ${b ? cardHtml(b, false) : ""}${cardHtml(a, true)}
+        </div>
+        <div class="swipe-btns">
+          <button type="button" class="no" data-pick="d" aria-label="Nope"><span aria-hidden="true">✕</span>Nope</button>
+          <button type="button" class="skip" data-pick="s"><span aria-hidden="true">?</span>Haven't seen</button>
+          <button type="button" class="want" data-pick="w"><span aria-hidden="true">★</span>Want to watch</button>
+          <button type="button" class="yes" data-pick="l" aria-label="Like"><span aria-hidden="true">♥</span>Like</button>
+        </div>
+        <div class="deck-links">
+          <button type="button" class="linkbtn" data-deck="undo" ${deck.history.length ? "" : "disabled"}>Undo</button>
+          <button type="button" class="linkbtn" data-deck="stop">Stop here</button>
+        </div>
+        <p class="hint" style="margin:0;text-align:center">Swipe right to like, left for nope, up for want to watch.</p>
+      </div>`;
+  }
+
+  $("deckBox").addEventListener("click", (e) => {
+    const p = e.target.closest("button[data-pick]");
+    if (p) return fly(p.dataset.pick);
+    if (e.target.closest("button[data-fy]")) return openSheet(true);
+    const b = e.target.closest("button[data-deck]");
+    if (!b || b.disabled) return;
+    const a = b.dataset.deck;
+    if (a === "start") startDeck();
+    else if (a === "more") moreDeck();
+    else if (a === "undo") undo();
+    else if (a === "clear") clearSwipes();
+    else if (a === "stop") { deck.k = deck.kinds.length; renderDeck(); if (!$("preview").disabled) $("preview").click(); }
+  });
+  $("deckBox").addEventListener("keydown", (e) => {
+    if (!e.target.classList || !e.target.classList.contains("stack")) return;
+    const k = { ArrowRight: "l", ArrowLeft: "d", ArrowUp: "w", ArrowDown: "s" }[e.key];
+    if (!k) return;
+    e.preventDefault();
+    fly(k);
+  });
+  // Drag the top card: past ~90px right = like, left = nope, up = want to watch.
+  let cardDrag = null;
+  const clamp01 = (v) => Math.max(0, Math.min(1, v));
+  $("deckBox").addEventListener("pointerdown", (e) => {
+    const card = e.target.closest(".card.top");
+    if (!card || (deck && deck.busy)) return;
+    cardDrag = { card, id: e.pointerId, x: e.clientX, y: e.clientY, dx: 0, dy: 0 };
+    try { card.setPointerCapture(e.pointerId); } catch {}
+    card.classList.add("dragging");
+  });
+  $("deckBox").addEventListener("pointermove", (e) => {
+    if (!cardDrag || e.pointerId !== cardDrag.id) return;
+    cardDrag.dx = e.clientX - cardDrag.x;
+    cardDrag.dy = e.clientY - cardDrag.y;
+    cardDrag.card.style.transform = `translate(${cardDrag.dx}px,${cardDrag.dy}px) rotate(${cardDrag.dx / 18}deg)`;
+    const up = -cardDrag.dy > Math.abs(cardDrag.dx);
+    const st = (c) => cardDrag.card.querySelector(".stamp." + c);
+    st("yes").style.opacity = up ? 0 : clamp01(cardDrag.dx / 90);
+    st("no").style.opacity = up ? 0 : clamp01(-cardDrag.dx / 90);
+    st("want").style.opacity = up ? clamp01(-cardDrag.dy / 90) : 0;
+  });
+  function endCardDrag(e, commit) {
+    if (!cardDrag || (e && e.pointerId !== cardDrag.id)) return;
+    const { card, dx, dy } = cardDrag;
+    cardDrag = null;
+    card.classList.remove("dragging");
+    const choice = !commit ? "" : -dy > Math.abs(dx) && -dy > 90 ? "w" : dx > 90 ? "l" : dx < -90 ? "d" : "";
+    if (choice) return fly(choice);
+    card.style.transform = "";
+    card.querySelectorAll(".stamp").forEach((s) => (s.style.opacity = 0));
+  }
+  $("deckBox").addEventListener("pointerup", (e) => endCardDrag(e, true));
+  $("deckBox").addEventListener("pointercancel", (e) => endCardDrag(e, false));
+
+  // "Want to watch" → Simkl Plan to Watch. Batched a few seconds so quick swipes go in one write (Simkl locks writes per user).
+  function queueWant(kind, card) {
+    wantQueue.push({ kind, tmdb: card.id, title: card.title, year: card.year });
+    if (simklToken && !needScope) {
+      clearTimeout(wantTimer);
+      wantTimer = setTimeout(flushWants, 3000);
+    } else if (!simklToken) {
+      wantMsg = FY_ONLY
+        ? `★ ${card.title} goes first in For You.${simklAvail ? " Connect Simkl at setup to add it to your Plan to Watch too." : ""}`
+        : simklAvail ? "Connect Simkl below to also add these to your Plan to Watch list." : "";
+    }
+    renderWantMsg();
+  }
+  function unqueueWant(kind, id) {
+    const before = wantQueue.length;
+    wantQueue = wantQueue.filter((w) => !(w.kind === kind && w.tmdb === id));
+    if (before === wantQueue.length && wantSent.has(kind + ":" + id)) {
+      wantMsg = "That one was already added to Simkl. Remove it on simkl.com if you changed your mind.";
+      renderWantMsg();
+    }
+  }
+  async function flushWants() {
+    clearTimeout(wantTimer);
+    if (!simklToken || !wantQueue.length || flushing) return;
+    flushing = true;
+    const batch = wantQueue.slice(0, 25);
+    const pick = (kind) => batch.filter((w) => w.kind === kind).map((w) => ({ tmdb: w.tmdb, title: w.title, year: w.year }));
+    let r;
+    try {
+      const res = await fetch("/simkl/add", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token: simklToken, movies: pick("movie"), shows: pick("tv") }) });
+      r = await res.json();
+    } catch {
+      r = { state: "error", message: "Couldn't reach Simkl. It'll try again with your next pick." };
+    }
+    flushing = false;
+    if (r.state === "ok") {
+      const done = new Set(batch.map((w) => w.kind + ":" + w.tmdb));
+      wantQueue = wantQueue.filter((w) => !done.has(w.kind + ":" + w.tmdb));
+      done.forEach((k) => wantSent.add(k));
+      const added = Math.max(0, Number(r.added) || 0);
+      wantMsg = `✓ Added ${added} to your Simkl Plan to Watch list${r.missed ? ` (${r.missed} not found on Simkl)` : ""}.`;
+      if (wantQueue.length) wantTimer = setTimeout(flushWants, 1500);
+    } else if (r.state === "scope") {
+      needScope = true;
+    } else if (r.state === "busy") {
+      wantMsg = "Simkl is busy with another update. Trying again shortly…";
+      wantTimer = setTimeout(flushWants, 20000);
+    } else {
+      wantMsg = r.message || "Couldn't add to Simkl.";
+    }
+    renderWantMsg();
+  }
+  function renderWantMsg() {
+    const el = $("wantMsg");
+    if (needScope && simklToken) {
+      el.innerHTML = `Your Simkl connection can only read. Reconnect to let it add titles to Plan to Watch (${wantQueue.length} waiting). <button type="button" class="linkbtn" data-sk2="reconnect">Reconnect Simkl</button>`;
+    } else {
+      el.textContent = wantMsg;
+    }
+    el.hidden = !el.textContent;
+    // On the For You app these are toasts: they fade after a few seconds (except the reconnect prompt).
+    if (FY_ONLY && !el.hidden && !(needScope && simklToken)) {
+      clearTimeout(renderWantMsg.t);
+      renderWantMsg.t = setTimeout(() => { el.hidden = true; }, 4200);
+    }
+  }
+  $("wantMsg").addEventListener("click", (e) => {
+    if (!e.target.closest("button[data-sk2]")) return;
+    simklToken = "";
+    needScope = false;
+    wantMsg = "";
+    renderWantMsg();
+    update();
+    skConnect(); // the new login asks for read and write
+    if (FY_ONLY && fyStep !== "setup") fyGo("setup");
+    $("simklBox").scrollIntoView({ behavior: reduceMotion() ? "auto" : "smooth", block: "center" });
+  });
+
+  // ===== The stand-alone For You app (/foryou): Tinder-style deck, then "done?", then setup =====
+  // It drives the same deck as the For You tab (startDeck, fly, answer, undo, swipes); only the look and screens differ.
+  const ICON = {
+    rew: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.6-5.9"/><path d="M4 4v5h5"/></svg>',
+    nope: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+    star: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.8l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3-4.6-4.4 6.3-.9z"/></svg>',
+    like: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-8.5-5.2-8.5-11.4A4.9 4.9 0 0 1 12 6.8a4.9 4.9 0 0 1 8.5 2.8C20.5 15.8 12 21 12 21z"/></svg>',
+    skip: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5S21.5 12 21.5 12s-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.6"/><path d="M4 20L20 4"/></svg>',
+    logo: '<svg width="40" height="40" viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M12 21.2s-8.8-5.3-8.8-11.7A5 5 0 0 1 12 6.6a5 5 0 0 1 8.8 2.9c0 6.4-8.8 11.7-8.8 11.7z"/><path fill="#fd267a" d="M10.2 9.6v5.6l4.6-2.8z"/></svg>',
+  };
+  function tCard(c, top, n) {
+    const bars = top ? `<div class="t-bars" aria-hidden="true">${Array.from({ length: DECK_GOAL }, (_, i) => `<i class="${i < n ? "on" : ""}"></i>`).join("")}</div>` : "";
+    const chips = (c.genres || []).map((g) => `<span>${esc(g)}</span>`).join("");
+    return `<div class="card t-card ${top ? "top" : "behind"}" ${top ? "" : 'aria-hidden="true"'}>
+      <img src="${esc(c.poster)}" alt="" draggable="false"><div class="t-shade"></div>${bars}
+      ${top ? '<span class="stamp yes">LIKE</span><span class="stamp no">NOPE</span><span class="stamp want">WANT IT</span>' : ""}
+      <div class="t-info"><div class="t-name"><b>${esc(c.title)}</b>${c.year ? `<span>${esc(c.year)}</span>` : ""}</div>
+        ${chips ? `<div class="t-chips">${chips}</div>` : ""}${c.overview ? `<p>${esc(c.overview)}</p>` : ""}</div>
+    </div>`;
+  }
+  const tPanel = (inner) => `<div class="tinder"><div class="t-stack">${inner}</div></div>`;
+  function renderTinder() {
+    const box = $("deckBox"), pill = $("fyKind");
+    if (fyNeedKey) {
+      pill.textContent = "";
+      box.innerHTML = tPanel(`<form class="t-panel" id="fyKeyForm" novalidate>
+        <div class="t-radar"><span class="dot">${ICON.logo}</span></div>
+        <b>One thing first</b>
+        <p>The cards come from TMDB. Paste your free TMDB key to start swiping.</p>
+        <label for="fyKey" style="position:absolute;left:-9999px">TMDB API key</label>
+        <input id="fyKey" type="text" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="Paste your v3 key or v4 read token">
+        <p class="err" id="fyKeyErr" role="alert" style="margin:0"></p>
+        <button class="fy-pill grad" type="submit" style="max-width:320px">Start swiping</button>
+        <p>Free at <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener">themoviedb.org/settings/api</a></p>
+      </form>`);
+      return;
+    }
+    if (!deck || deck.loading) {
+      pill.textContent = "Finding titles…";
+      box.innerHTML = tPanel(`<div class="t-panel"><div class="t-radar"><span class="wave"></span><span class="wave two"></span><span class="dot">${ICON.logo}</span></div><p>Finding movies and shows you might know…</p></div>`);
+      return;
+    }
+    if (deck.error) {
+      pill.textContent = "";
+      box.innerHTML = tPanel(`<div class="t-panel"><b>No cards right now</b><p>${esc(deck.error)}</p><button class="fy-pill grad" type="button" data-deck="start" style="max-width:280px">Try again</button></div>`);
+      return;
+    }
+    if (deckDone()) {
+      const left = deck.kinds.some((k) => deck.pools[k].length);
+      pill.textContent = "All rated";
+      box.innerHTML = tPanel(`<div class="t-panel"><div class="t-radar"><span class="dot">${ICON.logo}</span></div><b>That's the deck</b><p>${swipeSummary() || "No swipes yet."}</p>
+        <button class="fy-pill grad" type="button" data-fy="open" style="max-width:280px">See my picks</button>
+        ${left ? `<button class="fy-pill ghost" type="button" data-deck="more" style="max-width:280px">Swipe ${DECK_GOAL} more</button>` : ""}</div>`);
+      return;
+    }
+    const kind = curKind();
+    const n = deck.answered[kind];
+    const [a, b] = deck.pools[kind];
+    pill.textContent = `${KIND_WORD[kind]} · ${n}/${DECK_GOAL}`;
+    box.innerHTML = `<div class="tinder">
+      <div class="t-stack stack" tabindex="0" role="group" aria-label="${esc(a.title)}${a.year ? " (" + esc(a.year) + ")" : ""}. Arrow keys: right like, left nope, up want to watch, down haven't seen.">
+        ${b ? tCard(b, false, n) : ""}${tCard(a, true, n)}
+      </div>
+      <div class="t-btns">
+        <button type="button" class="t-b rew" data-deck="undo" aria-label="Undo" ${deck.history.length ? "" : "disabled"}><span class="ring">${ICON.rew}</span>Undo</button>
+        <button type="button" class="t-b lg nope" data-pick="d" aria-label="Nope"><span class="ring">${ICON.nope}</span>Nope</button>
+        <button type="button" class="t-b star" data-pick="w" aria-label="Want to watch"><span class="ring">${ICON.star}</span>Want it</button>
+        <button type="button" class="t-b lg like" data-pick="l" aria-label="Like"><span class="ring">${ICON.like}</span>Like</button>
+        <button type="button" class="t-b skip" data-pick="s" aria-label="Haven't seen"><span class="ring">${ICON.skip}</span>Not seen</button>
+      </div>
+    </div>`;
+  }
+  // "Are you done with your selections?" Posters of what you liked or want go in the circles, like a match screen.
+  function openSheet(finished) {
+    const total = swipeTotal("movie") + swipeTotal("tv");
+    const faces = [];
+    for (const kind of ["movie", "tv"]) for (const p of ["l", "w"]) for (const id of swipes[kind][p]) {
+      const c = seenCards.get(kind + ":" + id);
+      if (c && c.poster && faces.length < 5) faces.push(c);
+    }
+    $("fyAvatars").innerHTML = faces.map((c) => `<img src="${esc(c.poster)}" alt="">`).join("");
+    $("fySheetTitle").textContent = total ? "Nice taste!" : "Skip swiping?";
+    $("fySheetSum").innerHTML = total ? swipeSummary() : "For You shows popular titles until you swipe. You can come back and swipe any time.";
+    $("fySheetQ").textContent = total ? "Are you done with your selections?" : "Go straight to setup?";
+    $("fyYes").textContent = total ? "Yes, I'm done" : "Yes, set it up";
+    const left = !!(deck && deck.pools && deck.kinds.some((k) => deck.pools[k].length));
+    const more = !!finished && left;
+    $("fyKeep").textContent = more ? `Swipe ${DECK_GOAL} more` : "Keep swiping";
+    $("fyKeep").dataset.more = more ? "1" : "";
+    $("fyKeep").hidden = !!finished && !left;
+    $("fySheet").hidden = false;
+    $("fyYes").focus();
+  }
+  const closeSheet = () => { $("fySheet").hidden = true; };
+  function fyShow(step) {
+    fyStep = step;
+    $("fyShell").hidden = step !== "swipe";
+    document.querySelectorAll("body > .wrap").forEach((w) => (w.hidden = step === "swipe"));
+  }
+  function fyGo(step) {
+    closeSheet();
+    fyShow(step);
+    window.scrollTo(0, 0);
+    if (step === "setup") {
+      renderFySummary();
+      update();
+      if (!$("preview").disabled) $("preview").click();
+      return;
+    }
+    const key = $("tmdb").value.trim();
+    fyNeedKey = !(key && KEY_RE.test(key)) && !siteTmdb;
+    if (fyNeedKey) return renderDeck();
+    if (!deck || deck.error || !deck.pools) return startDeck();
+    if (deckDone()) moreDeck(); else renderDeck();
+    const st = document.querySelector("#deckBox .stack");
+    if (st) st.focus({ preventScroll: true });
+  }
+  function renderFySummary() {
+    const el = $("fySummary");
+    if (!el) return;
+    const sum = swipeSummary();
+    el.innerHTML = `<p class="sw-sum" style="margin:0 0 12px">${sum || "No swipes yet, so For You will show popular titles."}</p>
+      <div class="actions" style="margin-top:0">
+        <button class="btn ghost" type="button" data-fysum="swipe">${sum ? "Swipe more" : "Start swiping"}</button>
+        ${sum ? '<button class="btn ghost" type="button" data-fysum="clear">Clear swipes</button>' : ""}
+      </div>`;
+  }
+  function fyBoot() {
+    document.body.classList.add("fy-app");
+    const font = document.createElement("link"); // script face for the "Nice taste!" sheet
+    font.rel = "stylesheet";
+    font.href = "https://fonts.googleapis.com/css2?family=Pacifico&display=swap";
+    document.head.appendChild(font);
+    // The deck moves to the swipe screen; want-to-watch and Simkl messages become toasts on both screens.
+    $("fyShell").appendChild($("deckBox"));
+    document.body.appendChild($("wantMsg"));
+    // On the setup screen, the deck's panel becomes a summary of your picks.
+    const panel = $("deckLabel").parentElement;
+    $("deckLabel").textContent = "Your picks";
+    panel.querySelectorAll("p.hint").forEach((p) => (p.hidden = true));
+    const sum = document.createElement("div");
+    sum.id = "fySummary";
+    panel.appendChild(sum);
+    sum.addEventListener("click", (e) => {
+      const b = e.target.closest("button[data-fysum]");
+      if (!b) return;
+      if (b.dataset.fysum === "swipe") fyGo("swipe");
+      else { clearSwipes(); renderFySummary(); }
+    });
+    const back = document.createElement("button");
+    back.type = "button";
+    back.className = "fy-back";
+    back.id = "fyBack";
+    back.textContent = "← Back to swiping";
+    back.addEventListener("click", () => fyGo("swipe"));
+    document.querySelector("header").before(back);
+    $("fyDone").addEventListener("click", () => openSheet(deckDone()));
+    $("fyYes").addEventListener("click", () => fyGo("setup"));
+    $("fyKeep").addEventListener("click", () => {
+      const more = $("fyKeep").dataset.more === "1";
+      closeSheet();
+      if (more) moreDeck();
+      const st = document.querySelector("#deckBox .stack");
+      if (st) st.focus({ preventScroll: true });
+    });
+    $("fySheet").addEventListener("keydown", (e) => { if (e.key === "Escape") { closeSheet(); $("fyDone").focus(); } });
+    $("fySheet").addEventListener("click", (e) => { if (e.target === $("fySheet")) closeSheet(); });
+    $("deckBox").addEventListener("submit", (e) => {
+      if (e.target.id !== "fyKeyForm") return;
+      e.preventDefault();
+      const v = $("fyKey").value.trim();
+      if (!v || !KEY_RE.test(v)) { $("fyKeyErr").textContent = "Paste the key on its own: letters, numbers, dots, dashes and underscores only."; return; }
+      $("tmdb").value = v;
+      update();
+      fyNeedKey = false;
+      startDeck();
+    });
+    // Opened from Stremio's Configure button: straight to setup. Otherwise: the deck.
+    fyShow(pm ? "setup" : "swipe");
+    renderDeck();
+    fetch("/site.json").then((r) => r.json()).catch(() => ({})).then((j) => {
+      siteTmdb = !!(j && j.tmdb);
+      if (siteTmdb) {
+        document.querySelector('label[for="tmdb"]').textContent = "TMDB API key (optional)";
+        $("tmdb").placeholder = "Optional: this site has its own key";
+        const hint = $("tmdb").parentElement.querySelector(".hint");
+        if (hint) hint.innerHTML = 'This site has its own key, so you can leave this empty. To use yours, get one free at <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener">themoviedb.org/settings/api</a>.';
+      }
+      update();
+      fyGo(pm ? "setup" : "swipe");
+    });
+  }
+
+
+  // ---- "Put it at the top of Stremio" ----
+  // Signs in to Stremio from this page (the password never reaches this site's server), reads the account's add-on
+  // list, puts this add-on first (installing it if it's missing), saves the list, and signs out of that session.
+  // An auth key pasted instead of a password is used as is and never signed out, since it's the person's own session.
+  const STREMIO_API = "https://api.strem.io/api/";
+  async function stremioCall(method, body) {
+    let res;
+    try {
+      res = await fetch(STREMIO_API + method, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    } catch {
+      throw new Error("Couldn't reach Stremio from this page. Check your connection, or use Install instead.");
+    }
+    let j = null;
+    try { j = await res.json(); } catch {}
+    if (j && j.error) {
+      const m = String((j.error && (j.error.message || j.error)) || "");
+      if (/pass|user not found|no such user|wrong|credential/i.test(m)) throw new Error("Stremio didn't accept that email and password.");
+      if (/session|auth/i.test(m)) throw new Error("Stremio didn't accept that auth key. Copy it again from web.stremio.com.");
+      throw new Error("Stremio said: " + m.slice(0, 120));
+    }
+    if (!res.ok || !j) throw new Error(`Stremio returned an error (${res.status}). Try again in a moment.`);
+    return j.result;
+  }
+  let stBusy = false;
+  function stSay(text, ok) {
+    $("stStatus").innerHTML = ok ? `<span class="st-ok">✓ ${esc(text)}</span>` : esc(text);
+  }
+  function openStremioTop(afterInstall) {
+    if (!$("stSheet").hidden || stBusy) return;
+    $("stTitle").textContent = afterInstall ? "Want it at the top of Stremio?" : "Put it at the top of Stremio";
+    $("stErr").textContent = "";
+    stSay("");
+    $("stFields").hidden = false;
+    $("stGo").hidden = false;
+    $("stGo").disabled = false;
+    $("stCancel").textContent = "Not now";
+    $("stSheet").hidden = false;
+    $("stEmail").focus();
+  }
+  function closeStremioTop() {
+    if (stBusy) return;
+    $("stSheet").hidden = true;
+    $("stPass").value = "";
+    $("stKey").value = "";
+  }
+  async function putOnTop() {
+    const { ok, config } = state();
+    $("stErr").textContent = "";
+    if (!ok) { $("stErr").textContent = "Finish your settings first: the add-on link isn't ready yet."; return; }
+    const email = $("stEmail").value.trim(), password = $("stPass").value, pastedKey = $("stKey").value.trim();
+    if (!pastedKey && (!email || !password)) { $("stErr").textContent = "Enter your Stremio email and password."; return; }
+    const url = `${location.origin}${SITE}/${config}/manifest.json`;
+    stBusy = true;
+    $("stGo").disabled = true;
+    let authKey = pastedKey, signedIn = false;
+    try {
+      stSay("Getting the add-on…");
+      const manifest = await fetch(`${SITE}/${config}/manifest.json`).then((r) => r.json());
+      if (!manifest || !manifest.id) throw new Error("Couldn't load this add-on's details. Try again.");
+      if (!authKey) {
+        stSay("Signing in to Stremio…");
+        const r = await stremioCall("login", { type: "Login", email, password, facebook: false });
+        authKey = r && r.authKey;
+        if (!authKey) throw new Error("Stremio didn't accept that email and password.");
+        signedIn = true;
+      }
+      stSay("Reading your add-ons…");
+      const col = await stremioCall("addonCollectionGet", { type: "AddonCollectionGet", authKey, update: true });
+      const current = Array.isArray(col && col.addons) ? col.addons : [];
+      const others = current.filter((a) => a && a.transportUrl !== url && !(a.manifest && a.manifest.id === manifest.id));
+      const had = current.length !== others.length;
+      stSay("Moving it to the top…");
+      await stremioCall("addonCollectionSet", {
+        type: "AddonCollectionSet", authKey,
+        addons: [{ transportUrl: url, transportName: "http", manifest, flags: { official: false, protected: false } }, ...others],
+      });
+      stSay(`${had ? "Moved to" : "Installed at"} the top of your Stremio add-ons. Restart Stremio (or reload the web app) to see it first.`, true);
+      $("stFields").hidden = true;
+      $("stGo").hidden = true;
+      $("stCancel").textContent = "Close";
+    } catch (e) {
+      stSay("");
+      $("stErr").textContent = e.message || "Something went wrong. Try again.";
+      setTimeout(() => ($("stKey").value ? $("stKey") : $("stPass")).focus(), 0);
+    } finally {
+      if (signedIn && authKey) stremioCall("logout", { type: "Logout", authKey }).catch(() => {}); // end the session this page made
+      $("stPass").value = "";
+      stBusy = false;
+      $("stGo").disabled = false;
+    }
+  }
+  $("stTop").addEventListener("click", () => openStremioTop(false));
+  $("stForm").addEventListener("submit", (e) => { e.preventDefault(); putOnTop(); });
+  $("stCancel").addEventListener("click", closeStremioTop);
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("stSheet").hidden) closeStremioTop(); });
+  $("stSheet").addEventListener("click", (e) => { if (e.target === $("stSheet")) closeStremioTop(); });
+
+  fetch("/simkl/status").then((r) => r.json()).then((j) => { simklAvail = !!j.available; }).catch(() => { simklAvail = false; }).finally(renderSimkl);
+
+  renderChips();
+  renderTrashChips();
+  renderLayouts();
+  renderTurkChips();
+  renderDocChips();
+  renderFyChips();
+  renderCtx();
+  renderSimkl();
+  renderDeck();
+  update();
+  if (FY_ONLY) fyBoot();
+</script>
+</body>
+</html>

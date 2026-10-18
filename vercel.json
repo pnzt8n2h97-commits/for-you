@@ -1,0 +1,25 @@
+{
+  "outputDirectory": "public",
+  "rewrites": [
+    { "source": "/manifest.json", "destination": "/api" },
+    { "source": "/showcase.json", "destination": "/api" },
+    { "source": "/check.json", "destination": "/api" },
+    { "source": "/simkl/:action", "destination": "/api" },
+    { "source": "/:config/check.json", "destination": "/api" },
+    { "source": "/deck.json", "destination": "/api" },
+    { "source": "/:config/deck.json", "destination": "/api" },
+    { "source": "/showcase-tv.json", "destination": "/api" },
+    { "source": "/:config/showcase-tv.json", "destination": "/api" },
+    { "source": "/:config/showcase.json", "destination": "/api" },
+    { "source": "/catalog/:path*", "destination": "/api" },
+    { "source": "/:config/manifest.json", "destination": "/api" },
+    { "source": "/:config/catalog/:path*", "destination": "/api" },
+    { "source": "/site.json", "destination": "/api" },
+    { "source": "/foryou", "destination": "/index.html" },
+    { "source": "/foryou/:config/configure", "destination": "/index.html" },
+    { "source": "/foryou/:config/manifest.json", "destination": "/api" },
+    { "source": "/foryou/:config/catalog/:path*", "destination": "/api" },
+    { "source": "/configure", "destination": "/index.html" },
+    { "source": "/:config/configure", "destination": "/index.html" }
+  ]
+}
